@@ -3,7 +3,7 @@
 //
 
 #include "LexAnalysis.h"
-#include "ioControl.h"
+#include "../includes/ioControl.h"
 
 std::vector<Token *> tokens;
 

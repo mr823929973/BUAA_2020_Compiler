@@ -7,8 +7,8 @@
 
 #include <string>
 #include <vector>
-#include "Token.h"
-#include "MyType.h"
+#include "../includes/Token.h"
+#include "../includes/MyType.h"
 #include "LexingException.h"
 
 extern std::vector<Token *> tokens;

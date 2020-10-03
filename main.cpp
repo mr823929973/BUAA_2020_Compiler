@@ -1,5 +1,5 @@
-#include "ioControl.h"
-#include "LexAnalysis.h"
+#include "includes/ioControl.h"
+#include "Lexing/LexAnalysis.h"
 
 #define Lexing
 
