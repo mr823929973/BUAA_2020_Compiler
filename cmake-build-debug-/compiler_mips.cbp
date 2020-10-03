@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="compiler_mips"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="compiler_mips">
+				<Option output="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/compiler_mips" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 compiler_mips"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="compiler_mips/fast">
+				<Option output="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/compiler_mips" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/x86_64-pc-linux-gnu"/>
+					<Add directory="/usr/bin/../lib64/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../include/c++/10.2.0/backward"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/clang/10.0.1/include"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 compiler_mips/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/buaa-city/CLionProjects/compiler_mips/cmake-build-debug-/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/LexAnalysis.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/LexAnalysis.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/LexingException.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/LexingException.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/MyType.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/MyType.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/Token.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/Token.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/TokenType.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/TokenType.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/ioControl.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/ioControl.h">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/main.cpp">
+			<Option target="compiler_mips"/>
+		</Unit>
+		<Unit filename="/home/buaa-city/CLionProjects/compiler_mips/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>
