@@ -10,8 +10,8 @@
 #include "../includes/Token.h"
 #include "../includes/MyType.h"
 #include "LexingException.h"
+#include "../includes/Externs.h"
 
-extern std::vector<Token *> tokens;
 
 void LexAnalysis(const std::string &);
 

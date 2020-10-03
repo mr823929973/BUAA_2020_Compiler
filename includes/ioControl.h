@@ -6,9 +6,10 @@
 
 
 #include<fstream>
+#include "Externs.h"
 
 std::string read();
 
-extern std::ofstream fileout;
+
 
 #endif
