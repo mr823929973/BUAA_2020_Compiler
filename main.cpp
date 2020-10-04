@@ -1,7 +1,8 @@
 #include "includes/ioControl.h"
 #include "Lexing/LexAnalysis.h"
+#include "Parsing/Parsing.h"
 
-#define Lexing
+#define Parsing
 
 int main() {
     std::string rawString = read();
@@ -14,7 +15,14 @@ int main() {
 #ifdef Lexing
     printLexingDebug();
 #endif
+#ifdef Parsing
+    try {
+        ParsingAnalysis();
+    } catch (ParsingException &e) {
+        std::cerr << e;
+    }
 
+#endif
 
     return 0;
 }

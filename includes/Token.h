@@ -3,9 +3,9 @@
 //
 
 #ifndef COMPILER_MIPS_TOKEN_H
-#define COMPILER_MIPS_TOKEN_H
+#define COMPILER_MIPS_TOKEN_H            std::cerr << "[error]:Undefined token type!" << std::endl;
 
-
+#include <utility>
 #include <string>
 #include "TokenType.h"
 
@@ -19,9 +19,9 @@ public:
 
     Token(int lineNum, std::string rawString, TokenType tokenType);
 
-    TokenType getTokenType() {
-        return this->tokenType;
-    }
+    TokenType getTokenType();
+
+    int getLineNum();
 
     friend std::ostream &operator<<(std::ostream &out, Token &tmp);
 

@@ -16,7 +16,7 @@ public:
 
     explicit LexingException(int lineNum);
 
-    int getLineNum();
+    int getLineNum() const;
 };
 
 

@@ -12,6 +12,6 @@ LexingException::LexingException(int lineNum) {
     this->lineNum = lineNum;
 }
 
-int LexingException::getLineNum() {
+int LexingException::getLineNum() const {
     return lineNum;
 }

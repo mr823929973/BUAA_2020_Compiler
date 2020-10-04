@@ -4,7 +4,6 @@
 
 #include "Token.h"
 
-#include <utility>
 
 Token::Token() {
     this->lineNum = -1;
@@ -20,4 +19,12 @@ Token::Token(int lineNum, std::string rawString, TokenType tokenType) {
 std::ostream &operator<<(std::ostream &out, Token &tmp) {
     out << tmp.tokenType << ' ' << tmp.rawString;
     return out;
+}
+
+int Token::getLineNum() {
+    return this->lineNum;
+}
+
+TokenType Token::getTokenType() {
+    return this->tokenType;
 }

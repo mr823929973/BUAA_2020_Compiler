@@ -4,9 +4,16 @@
 
 #ifndef COMPILER_MIPS_PARSING_H
 #define COMPILER_MIPS_PARSING_H
-#include "../includes/Externs.h"
 
-void Parsing();
+#include "../includes/Externs.h"
+#include "ParsingException.h"
+
+void ParsingAnalysis();
+
+namespace Parsing {
+    void getNextToken();
+    void program();
+}
 
 
 #endif //COMPILER_MIPS_PARSING_H

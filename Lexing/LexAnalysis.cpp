@@ -177,10 +177,12 @@ void LexAnalysis(const std::string &rawString) {
         }
         tokens.push_back(new Token(lineNum, tmpToken, type));
     }
+    tokens.push_back(new Token());
 }
 
 void printLexingDebug() {
     for (Token *t:tokens) {
-        fileout << *t << std::endl;
+        if (t->getTokenType() != (TokenType) -1)
+            fileout << *t << std::endl;
     }
 }
