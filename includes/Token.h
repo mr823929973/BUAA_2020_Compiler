@@ -21,10 +21,11 @@ public:
 
     TokenType getTokenType();
 
-    int getLineNum();
+    int getLineNum() const;
 
     friend std::ostream &operator<<(std::ostream &out, Token &tmp);
 
+    std::string getRawString();
 
 };
 

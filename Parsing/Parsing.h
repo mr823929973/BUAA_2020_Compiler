@@ -12,7 +12,36 @@ void ParsingAnalysis();
 
 namespace Parsing {
     void getNextToken();
+
     void program();
+
+    void constDesc();
+
+    void constDef();
+
+    int integer();
+
+    unsigned unsignedInt();
+
+    void varDesc();
+
+    void varDef();
+
+    void varDefInit();
+
+    bool constant();
+
+    void varDefUnInit();
+
+    void returnFuncDesc();
+
+    void voidFuncDesc();
+
+    void mainFunc();
+
+    void error();
+
+
 }
 
 

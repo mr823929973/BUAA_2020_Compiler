@@ -21,10 +21,14 @@ std::ostream &operator<<(std::ostream &out, Token &tmp) {
     return out;
 }
 
-int Token::getLineNum() {
+int Token::getLineNum() const {
     return this->lineNum;
 }
 
 TokenType Token::getTokenType() {
     return this->tokenType;
+}
+
+std::string Token::getRawString() {
+    return this->rawString;
 }
