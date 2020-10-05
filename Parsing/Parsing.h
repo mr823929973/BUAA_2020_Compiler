@@ -7,6 +7,7 @@
 
 #include "../includes/Externs.h"
 #include "ParsingException.h"
+#include <set>
 
 void ParsingAnalysis();
 
@@ -34,6 +35,44 @@ namespace Parsing {
     void varDefUnInit();
 
     void returnFuncDesc();
+
+    void defHead();
+
+    void argList();
+
+    void compState();
+
+    void stateList();
+
+    void statement();
+
+    void loopState();
+
+    void condition();
+
+    void relationOp();
+
+    void expression();
+
+    void term();
+
+    void stride();
+
+    void condState();
+
+    void returnFuncState();
+
+    void voidFuncState();
+
+    void assiState();
+
+    void readState();
+
+    void writeState();
+
+    void switchState();
+
+    void returnState();
 
     void voidFuncDesc();
 
