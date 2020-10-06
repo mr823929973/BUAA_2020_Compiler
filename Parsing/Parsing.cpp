@@ -147,12 +147,26 @@ void Parsing::varDesc() {
 }
 
 void Parsing::varDef() {
-    if (((nextToken + 2) < tokens.end() && (*(nextToken + 2))->getTokenType() == TokenType::ASSIGN)
-        || ((nextToken + 5) < tokens.end() && (*(nextToken + 5))->getTokenType() == TokenType::ASSIGN)
-        || ((nextToken + 8) < tokens.end() && (*(nextToken + 8))->getTokenType() == TokenType::ASSIGN)) {
-        varDefInit();
+    if ((nextToken + 2) < tokens.end() && (*(nextToken + 2))->getTokenType() != TokenType::LBRACK) {
+        if ((nextToken + 2) < tokens.end() && (*(nextToken + 2))->getTokenType() == TokenType::ASSIGN) {
+            varDefInit();
+        } else {
+            varDefUnInit();
+        }
     } else {
-        varDefUnInit();
+        if ((nextToken + 5) < tokens.end() && (*(nextToken + 5))->getTokenType() != TokenType::LBRACK)
+            if ((nextToken + 5) < tokens.end() && (*(nextToken + 5))->getTokenType() == TokenType::ASSIGN) {
+                varDefInit();
+            } else {
+                varDefUnInit();
+            }
+        else {
+            if ((nextToken + 8) < tokens.end() && (*(nextToken + 8))->getTokenType() == TokenType::ASSIGN) {
+                varDefInit();
+            } else {
+                varDefUnInit();
+            }
+        }
     }
     fileout << "<变量定义>" << std::endl;
 }
@@ -499,17 +513,23 @@ void Parsing::factor() {
             getNextToken();
             if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                 getNextToken();
-                integer();
+                expression();
                 if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
                 getNextToken();
                 if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                     getNextToken();
-                    integer();
+                    expression();
                     if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
+                    getNextToken();
                 }
             }
         }
     } else if ((*nextToken)->getTokenType() == TokenType::CHARCON) {
+        getNextToken();
+    } else if ((*nextToken)->getTokenType() == TokenType::LPARENT) {
+        getNextToken();
+        expression();
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
         getNextToken();
     } else {
         integer();
@@ -625,7 +645,7 @@ void Parsing::writeState() {
     fileout << "<写语句>" << std::endl;
 }
 
-void Parsing::strcon(){
+void Parsing::strcon() {
     if ((*nextToken)->getTokenType() != TokenType::STRCON) error();
     getNextToken();
     fileout << "<字符串>" << std::endl;

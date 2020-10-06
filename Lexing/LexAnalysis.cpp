@@ -22,6 +22,7 @@ void LexAnalysis(const std::string &rawString) {
             }
             i++;
         }
+        if (i>=rawString.length()) break;
         if (isAlpha(rawString[i])) {
             std::string tmp;
             tmp = "";

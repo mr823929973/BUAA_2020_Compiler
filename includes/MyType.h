@@ -28,7 +28,7 @@ inline bool isPrint(char tmp) {
 }
 
 inline char toLower(char tmp) {
-    return (tmp >= 'A' && tmp <= 'Z') ? tmp + (char)32 : tmp; /* NOLINT */
+    return (tmp >= 'A' && tmp <= 'Z') ? tmp + (char) 32 : tmp; /* NOLINT */
 }
 
 #endif //COMPILER_MIPS_MYTYPE_H

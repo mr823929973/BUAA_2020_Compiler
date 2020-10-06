@@ -10,6 +10,7 @@ int main() {
         LexAnalysis(rawString);
     } catch (LexingException &e) {
         std::cerr << "Lexing Error in Line " << e.getLineNum() << std::endl;
+        return 0;
     }
 
 #ifdef Lexing
