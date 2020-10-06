@@ -52,7 +52,7 @@ void Parsing::program() {
     }
     mainFunc();
     getNextToken();
-    fileout << "＜程序＞" << std::endl;
+    fileout << "<程序>" << std::endl;
 }
 
 void Parsing::constDesc() {
@@ -69,7 +69,7 @@ void Parsing::constDesc() {
             }
         }
     } while ((*nextToken)->getTokenType() == TokenType::CONSTTK);
-    fileout << "＜常量说明＞" << std::endl;
+    fileout << "<常量说明>" << std::endl;
 }
 
 void Parsing::constDef() {
@@ -108,7 +108,7 @@ void Parsing::constDef() {
     } else {
         error();
     }
-    fileout << "＜常量定义＞" << std::endl;
+    fileout << "<常量定义>" << std::endl;
 }
 
 int Parsing::integer() {
@@ -120,7 +120,7 @@ int Parsing::integer() {
         getNextToken();
     }
     tmp = tmp * (int) unsignedInt();
-    fileout << "＜整数＞" << std::endl;
+    fileout << "<整数>" << std::endl;
     return tmp;
 }
 
@@ -128,7 +128,7 @@ unsigned Parsing::unsignedInt() {
     if ((*nextToken)->getTokenType() != TokenType::INTCON) error();
     unsigned tmp = std::stoi((*nextToken)->getRawString());
     getNextToken();
-    fileout << "＜无符号整数＞" << std::endl;
+    fileout << "<无符号整数>" << std::endl;
     return tmp;
 }
 
@@ -141,9 +141,9 @@ void Parsing::varDesc() {
         varDef();
         if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
         getNextToken();
-    } while ((*nextToken)->getTokenType() != TokenType::INTTK
-             || ((*nextToken)->getTokenType() != TokenType::CHARTK));
-    fileout << "＜变量说明＞" << std::endl;
+    } while ((*nextToken)->getTokenType() == TokenType::INTTK
+             || ((*nextToken)->getTokenType() == TokenType::CHARTK));
+    fileout << "<变量说明>" << std::endl;
 }
 
 void Parsing::varDef() {
@@ -154,7 +154,7 @@ void Parsing::varDef() {
     } else {
         varDefUnInit();
     }
-    fileout << "＜变量定义＞" << std::endl;
+    fileout << "<变量定义>" << std::endl;
 }
 
 void Parsing::varDefInit() {
@@ -235,7 +235,7 @@ void Parsing::varDefInit() {
     } else {
         error();
     }
-    fileout << "＜变量定义及初始化＞" << std::endl;
+    fileout << "<变量定义及初始化>" << std::endl;
 }
 
 bool Parsing::constant() {
@@ -247,7 +247,7 @@ bool Parsing::constant() {
         integer();
         tmp = false;
     }
-    fileout << "＜常量＞" << std::endl;
+    fileout << "<常量>" << std::endl;
     return tmp;
 }
 
@@ -275,7 +275,7 @@ void Parsing::varDefUnInit() {
             }
         }
     } while ((*nextToken)->getTokenType() == TokenType::COMMA);
-    fileout << "＜变量定义无初始化＞" << std::endl;
+    fileout << "<变量定义无初始化>" << std::endl;
 }
 
 void Parsing::returnFuncDesc() {
@@ -290,7 +290,7 @@ void Parsing::returnFuncDesc() {
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
-    fileout << "＜有返回值函数定义＞" << std::endl;
+    fileout << "<有返回值函数定义>" << std::endl;
 }
 
 void Parsing::defHead() {
@@ -301,7 +301,7 @@ void Parsing::defHead() {
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
     returnFunc.insert((*nextToken)->getRawString());
     getNextToken();
-    fileout << "＜声明头部＞" << std::endl;
+    fileout << "<声明头部>" << std::endl;
 }
 
 void Parsing::argList() {
@@ -320,7 +320,7 @@ void Parsing::argList() {
             getNextToken();
         }
     }
-    fileout << "＜参数表＞" << std::endl;
+    fileout << "<参数表>" << std::endl;
 }
 
 void Parsing::compState() {
@@ -332,7 +332,7 @@ void Parsing::compState() {
         varDesc();
     }
     stateList();
-    fileout << "＜复合语句＞" << std::endl;
+    fileout << "<复合语句>" << std::endl;
 }
 
 void Parsing::stateList() {
@@ -348,7 +348,7 @@ void Parsing::stateList() {
            || (*nextToken)->getTokenType() == TokenType::SEMICN) {
         statement();
     }
-    fileout << "＜语句列＞" << std::endl;
+    fileout << "<语句列>" << std::endl;
 }
 
 void Parsing::statement() {
@@ -398,7 +398,7 @@ void Parsing::statement() {
     } else {
         error();
     }
-    fileout << "＜语句＞" << std::endl;
+    fileout << "<语句>" << std::endl;
 }
 
 void Parsing::loopState() {
@@ -441,14 +441,14 @@ void Parsing::loopState() {
     } else {
         error();
     }
-    fileout << "＜循环语句＞" << std::endl;
+    fileout << "<循环语句>" << std::endl;
 }
 
 void Parsing::condition() {
     expression();
     relationOp();
     expression();
-    fileout << "＜条件＞" << std::endl;
+    fileout << "<条件>" << std::endl;
 }
 
 void Parsing::relationOp() {
@@ -477,7 +477,7 @@ void Parsing::expression() {
         getNextToken();
         term();
     }
-    fileout << "＜表达式＞" << std::endl;
+    fileout << "<表达式>" << std::endl;
 }
 
 void Parsing::term() {
@@ -487,7 +487,7 @@ void Parsing::term() {
         getNextToken();
         factor();
     }
-    fileout << "＜项＞" << std::endl;
+    fileout << "<项>" << std::endl;
 }
 
 void Parsing::factor() {
@@ -514,12 +514,12 @@ void Parsing::factor() {
     } else {
         integer();
     }
-    fileout << "＜因子＞" << std::endl;
+    fileout << "<因子>" << std::endl;
 }
 
 void Parsing::stride() {
     unsignedInt();
-    fileout << "＜步长＞" << std::endl;
+    fileout << "<步长>" << std::endl;
 }
 
 void Parsing::condState() {
@@ -535,7 +535,7 @@ void Parsing::condState() {
         getNextToken();
         statement();
     }
-    fileout << "＜条件语句＞" << std::endl;
+    fileout << "<条件语句>" << std::endl;
 }
 
 void Parsing::returnFuncState() {
@@ -547,7 +547,7 @@ void Parsing::returnFuncState() {
     vaArgList();
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
-    fileout << "＜有返回值函数调用语句＞" << std::endl;
+    fileout << "<有返回值函数调用语句>" << std::endl;
 }
 
 void Parsing::vaArgList() {
@@ -558,7 +558,7 @@ void Parsing::vaArgList() {
             expression();
         }
     }
-    fileout << "＜值参数表＞" << std::endl;
+    fileout << "<值参数表>" << std::endl;
 }
 
 void Parsing::voidFuncState() {
@@ -569,7 +569,7 @@ void Parsing::voidFuncState() {
     vaArgList();
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
-    fileout << "＜无返回值函数调用语句＞" << std::endl;
+    fileout << "<无返回值函数调用语句>" << std::endl;
 }
 
 
@@ -591,7 +591,7 @@ void Parsing::assiState() {
     if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
     getNextToken();
     expression();
-    fileout << "＜赋值语句＞" << std::endl;
+    fileout << "<赋值语句>" << std::endl;
 }
 
 void Parsing::readState() {
@@ -603,7 +603,7 @@ void Parsing::readState() {
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
-    fileout << "＜读语句＞" << std::endl;
+    fileout << "<读语句>" << std::endl;
 }
 
 void Parsing::writeState() {
@@ -622,7 +622,7 @@ void Parsing::writeState() {
     }
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
-    fileout << "＜写语句＞" << std::endl;
+    fileout << "<写语句>" << std::endl;
 }
 
 void Parsing::switchState() {
@@ -639,7 +639,7 @@ void Parsing::switchState() {
     defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
-    fileout << "＜情况语句＞" << std::endl;
+    fileout << "<情况语句>" << std::endl;
 }
 
 void Parsing::caseList() {
@@ -647,7 +647,7 @@ void Parsing::caseList() {
     while ((*nextToken)->getTokenType() == TokenType::CASETK) {
         caseState();
     }
-    fileout << "＜情况表＞" << std::endl;
+    fileout << "<情况表>" << std::endl;
 }
 
 void Parsing::caseState() {
@@ -657,7 +657,7 @@ void Parsing::caseState() {
     if ((*nextToken)->getTokenType() != TokenType::COLON) error();
     getNextToken();
     statement();
-    fileout << "＜情况子语句＞" << std::endl;
+    fileout << "<情况子语句>" << std::endl;
 }
 
 void Parsing::defaultState() {
@@ -666,7 +666,7 @@ void Parsing::defaultState() {
     if ((*nextToken)->getTokenType() != TokenType::COLON) error();
     getNextToken();
     statement();
-    fileout << "＜缺省＞" << std::endl;
+    fileout << "<缺省>" << std::endl;
 }
 
 void Parsing::returnState() {
@@ -678,7 +678,7 @@ void Parsing::returnState() {
         if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
         getNextToken();
     }
-    fileout << "＜返回语句＞" << std::endl;
+    fileout << "<返回语句>" << std::endl;
 }
 
 void Parsing::voidFuncDesc() {
@@ -696,7 +696,7 @@ void Parsing::voidFuncDesc() {
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
-    fileout << "＜无返回值函数定义＞" << std::endl;
+    fileout << "<无返回值函数定义>" << std::endl;
 }
 
 void Parsing::mainFunc() {
@@ -713,7 +713,7 @@ void Parsing::mainFunc() {
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
-    fileout << "＜主函数＞" << std::endl;
+    fileout << "<主函数>" << std::endl;
 }
 
 void Parsing::error() {
