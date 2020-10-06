@@ -531,7 +531,7 @@ void Parsing::condState() {
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
     statement();
-    if ((*nextToken)->getTokenType() != TokenType::ELSETK) {
+    if ((*nextToken)->getTokenType() == TokenType::ELSETK) {
         getNextToken();
         statement();
     }
