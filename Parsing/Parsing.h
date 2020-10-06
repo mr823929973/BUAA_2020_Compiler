@@ -74,6 +74,8 @@ namespace Parsing {
 
     void writeState();
 
+    void strcon();
+
     void switchState();
 
     void caseList();

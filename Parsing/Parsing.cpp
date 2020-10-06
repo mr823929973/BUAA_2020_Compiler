@@ -612,7 +612,7 @@ void Parsing::writeState() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     if ((*nextToken)->getTokenType() == TokenType::STRCON) {
-        getNextToken();
+        strcon();
         if ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
             expression();
@@ -623,6 +623,12 @@ void Parsing::writeState() {
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
     getNextToken();
     fileout << "<写语句>" << std::endl;
+}
+
+void Parsing::strcon(){
+    if ((*nextToken)->getTokenType() != TokenType::STRCON) error();
+    getNextToken();
+    fileout << "<字符串>" << std::endl;
 }
 
 void Parsing::switchState() {
