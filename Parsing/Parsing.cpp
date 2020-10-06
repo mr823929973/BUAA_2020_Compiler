@@ -481,7 +481,40 @@ void Parsing::expression() {
 }
 
 void Parsing::term() {
+    factor();
+    while ((*nextToken)->getTokenType() == TokenType::MULT
+           || (*nextToken)->getTokenType() == TokenType::DIV) {
+        getNextToken();
+        factor();
+    }
+    fileout << "＜项＞" << std::endl;
+}
 
+void Parsing::factor() {
+    if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
+        if ((nextToken + 1) < tokens.end() &&
+            (*(nextToken + 1))->getTokenType() == TokenType::LPARENT) {
+            returnFuncState();
+        } else {
+            getNextToken();
+            if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+                getNextToken();
+                integer();
+                if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
+                getNextToken();
+                if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+                    getNextToken();
+                    integer();
+                    if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
+                }
+            }
+        }
+    } else if ((*nextToken)->getTokenType() == TokenType::CHARCON) {
+        getNextToken();
+    } else {
+        integer();
+    }
+    fileout << "＜因子＞" << std::endl;
 }
 
 void Parsing::stride() {
@@ -490,35 +523,162 @@ void Parsing::stride() {
 }
 
 void Parsing::condState() {
-
+    if ((*nextToken)->getTokenType() != TokenType::IFTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    condition();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    statement();
+    if ((*nextToken)->getTokenType() != TokenType::ELSETK) {
+        getNextToken();
+        statement();
+    }
+    fileout << "＜条件语句＞" << std::endl;
 }
 
 void Parsing::returnFuncState() {
+    if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    if (!returnFunc.count((*nextToken)->getRawString())) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    vaArgList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    fileout << "＜有返回值函数调用语句＞" << std::endl;
+}
 
+void Parsing::vaArgList() {
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) {
+        expression();
+        while ((*nextToken)->getTokenType() == TokenType::COMMA) {
+            getNextToken();
+            expression();
+        }
+    }
+    fileout << "＜值参数表＞" << std::endl;
 }
 
 void Parsing::voidFuncState() {
-
+    if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    vaArgList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    fileout << "＜无返回值函数调用语句＞" << std::endl;
 }
 
-void Parsing::assiState() {
 
+void Parsing::assiState() {
+    if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+        getNextToken();
+        expression();
+        if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
+        getNextToken();
+        if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+            getNextToken();
+            expression();
+            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
+            getNextToken();
+        }
+    }
+    if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
+    getNextToken();
+    expression();
+    fileout << "＜赋值语句＞" << std::endl;
 }
 
 void Parsing::readState() {
-
+    if ((*nextToken)->getTokenType() != TokenType::SCANFTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    fileout << "＜读语句＞" << std::endl;
 }
 
 void Parsing::writeState() {
-
+    if ((*nextToken)->getTokenType() != TokenType::PRINTFTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() == TokenType::STRCON) {
+        getNextToken();
+        if ((*nextToken)->getTokenType() == TokenType::COMMA) {
+            getNextToken();
+            expression();
+        }
+    } else {
+        expression();
+    }
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    fileout << "＜写语句＞" << std::endl;
 }
 
 void Parsing::switchState() {
+    if ((*nextToken)->getTokenType() != TokenType::SWITCHTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    expression();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
+    getNextToken();
+    caseList();
+    defaultState();
+    if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+    getNextToken();
+    fileout << "＜情况语句＞" << std::endl;
+}
 
+void Parsing::caseList() {
+    caseState();
+    while ((*nextToken)->getTokenType() == TokenType::CASETK) {
+        caseState();
+    }
+    fileout << "＜情况表＞" << std::endl;
+}
+
+void Parsing::caseState() {
+    if ((*nextToken)->getTokenType() != TokenType::CASETK) error();
+    getNextToken();
+    constant();
+    if ((*nextToken)->getTokenType() != TokenType::COLON) error();
+    getNextToken();
+    statement();
+    fileout << "＜情况子语句＞" << std::endl;
+}
+
+void Parsing::defaultState() {
+    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::COLON) error();
+    getNextToken();
+    statement();
+    fileout << "＜缺省＞" << std::endl;
 }
 
 void Parsing::returnState() {
-
+    if ((*nextToken)->getTokenType() != TokenType::RETURNTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() == TokenType::LPARENT) {
+        getNextToken();
+        expression();
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+        getNextToken();
+    }
+    fileout << "＜返回语句＞" << std::endl;
 }
 
 void Parsing::voidFuncDesc() {
@@ -540,16 +700,23 @@ void Parsing::voidFuncDesc() {
 }
 
 void Parsing::mainFunc() {
-
+    if ((*nextToken)->getTokenType() != TokenType::VOIDTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::MAINTK) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
+    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
+    getNextToken();
+    compState();
+    if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+    getNextToken();
+    fileout << "＜主函数＞" << std::endl;
 }
 
 void Parsing::error() {
     std::cerr << *(*nextToken) << " " << (*nextToken)->getLineNum() << std::endl;
     throw ParsingException();
 }
-
-
-
-
-
-

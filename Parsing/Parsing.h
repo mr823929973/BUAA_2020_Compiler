@@ -56,11 +56,15 @@ namespace Parsing {
 
     void term();
 
+    void factor();
+
     void stride();
 
     void condState();
 
     void returnFuncState();
+
+    void vaArgList();
 
     void voidFuncState();
 
@@ -71,6 +75,12 @@ namespace Parsing {
     void writeState();
 
     void switchState();
+
+    void caseList();
+
+    void caseState();
+
+    void defaultState();
 
     void returnState();
 
