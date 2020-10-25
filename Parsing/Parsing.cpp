@@ -9,13 +9,13 @@ static std::vector<Token *>::iterator nextToken;
 static std::set<std::string> returnFunc;
 
 void ParsingAnalysis() {
-    nextToken = tokens.begin() - 1;
+    nextToken = tokens.begin();
     getNextToken();
     program();
 }
 
 void Parsing::getNextToken() {
-    if (nextToken >= tokens.begin() && (*nextToken)->getTokenType() != (TokenType) -1) {
+    if (nextToken > tokens.begin() && (*nextToken)->getTokenType() != (TokenType) -1) {
         fileout << *(*nextToken) << std::endl;
     }
 

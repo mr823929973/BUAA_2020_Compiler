@@ -13,6 +13,7 @@ void LexAnalysis(const std::string &rawString) {
     int lineNum = 1;
     int i = 0;
     TokenType type;
+    tokens.push_back(new Token());
     while (i < rawString.length()) {
         tmpToken = "";
         type = static_cast<TokenType>(-1);
