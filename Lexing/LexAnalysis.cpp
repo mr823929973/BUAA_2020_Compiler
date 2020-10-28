@@ -6,6 +6,7 @@
 #include "../includes/ioControl.h"
 
 std::vector<Token *> tokens;
+using namespace Lexing;
 
 void LexAnalysis(const std::string &rawString) {
 
@@ -23,7 +24,7 @@ void LexAnalysis(const std::string &rawString) {
             }
             i++;
         }
-        if (i>=rawString.length()) break;
+        if (i >= rawString.length()) break;
         if (isAlpha(rawString[i])) {
             std::string tmp;
             tmp = "";
@@ -79,20 +80,21 @@ void LexAnalysis(const std::string &rawString) {
                     || rawString[i] == '*' || rawString[i] == '/') {
                     tmpToken += rawString[i];
                 } else {
-                    throw LexingException(lineNum);
+                    error(lineNum);
                 }
                 i++;
                 if (i < rawString.length() && rawString[i] == '\'') {
                     type = TokenType::CHARCON;
                     i++;
                 } else {
-                    throw LexingException(lineNum);
+                    error(lineNum);
                 }
             } else {
-                throw LexingException(lineNum);
+                error(lineNum);
             }
         } else if (rawString[i] == '\"') {
             i++;
+            if(rawString[i] == '\"') error(lineNum);
             while (isPrint(rawString[i]) && i < rawString.length()) {
                 tmpToken += rawString[i];
                 i++;
@@ -101,7 +103,7 @@ void LexAnalysis(const std::string &rawString) {
                 type = TokenType::STRCON;
                 i++;
             } else {
-                throw LexingException(lineNum);
+                error(lineNum);
             }
         } else if (rawString[i] == '+') {
             tmpToken += rawString[i++];
@@ -148,7 +150,7 @@ void LexAnalysis(const std::string &rawString) {
                 tmpToken += rawString[i++];
                 type = TokenType::NEQ;
             } else {
-                throw LexingException(lineNum);
+                error(lineNum);
             }
         } else if (rawString[i] == '<') {
             tmpToken += rawString[i++];
@@ -175,11 +177,15 @@ void LexAnalysis(const std::string &rawString) {
                 type = TokenType::ASSIGN;
             }
         } else {
-            throw LexingException(lineNum);
+            error(lineNum);
         }
         tokens.push_back(new Token(lineNum, tmpToken, type));
     }
     tokens.push_back(new Token());
+}
+
+void Lexing::error(int lineNum) {
+    err::error(lineNum,'a');
 }
 
 void printLexingDebug() {

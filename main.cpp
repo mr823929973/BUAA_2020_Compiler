@@ -3,26 +3,36 @@
 #include "Parsing/Parsing.h"
 
 #define Parsing
+#define DEBUG
 
 int main() {
     std::string rawString = read();
-    try {
-        LexAnalysis(rawString);
-    } catch (LexingException &e) {
-        std::cerr << "Lexing Error in Line " << e.getLineNum() << std::endl;
-        return 0;
-    }
+#ifdef DEBUG
+    std::cout << "=========================Lexing================================" << std::endl;
+#endif
+    LexAnalysis(rawString);
+#ifdef DEBUG
+    std::cout << "=======================Lexing Complete=========================" << std::endl;
+#endif
 
 #ifdef Lexing
     printLexingDebug();
 #endif
+
+#ifdef DEBUG
+    std::cout << "=========================Parsing===============================" << std::endl;
+#endif
+
 #ifdef Parsing
     try {
         ParsingAnalysis();
     } catch (ParsingException &e) {
         std::cerr << e;
     }
+#endif
 
+#ifdef DEBUG
+    std::cout << "=======================Parsing Complete========================" << std::endl;
 #endif
 
     return 0;

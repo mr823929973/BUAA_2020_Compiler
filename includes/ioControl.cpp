@@ -6,6 +6,7 @@
 
 const std::string inputFile = "testfile.txt";/* NOLINT */
 const std::string outputFile = "output.txt";/* NOLINT */
+const std::string errFile = "error.txt";/* NOLINT */
 
 std::string read() {
     std::ifstream t(inputFile);
@@ -15,3 +16,4 @@ std::string read() {
 }
 
 std::ofstream fileout = std::ofstream(outputFile, std::ios::out | std::ios::trunc);/* NOLINT */
+std::ofstream fileerr = std::ofstream(errFile, std::ios::out | std::ios::trunc);/* NOLINT */

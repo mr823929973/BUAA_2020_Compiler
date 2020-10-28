@@ -124,7 +124,7 @@ std::ostream &operator<<(std::ostream &out, TokenType tp) {
             out << "RBRACE";
             break;
         default:
-            std::cerr << "[error]:Undefined token type!" << std::endl;
+           // std::cerr << "[error]:Undefined token type!" << std::endl;
             break;
     }
     return out;
