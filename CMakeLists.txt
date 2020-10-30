@@ -3,4 +3,4 @@ project(compiler_mips)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(compiler_mips main.cpp includes/Token.cpp includes/Token.h Lexing/LexAnalysis.cpp Lexing/LexAnalysis.h includes/ioControl.cpp includes/ioControl.h includes/TokenType.cpp includes/TokenType.h includes/MyType.cpp includes/MyType.h Parsing/Parsing.cpp Parsing/Parsing.h includes/Externs.h Parsing/ParsingException.cpp Parsing/ParsingException.h Error/error.cpp Error/error.h Error/error.cpp Error/error.h)
+add_executable(compiler_mips main.cpp includes/Token.cpp includes/Token.h Lexing/LexAnalysis.cpp Lexing/LexAnalysis.h includes/ioControl.cpp includes/ioControl.h includes/TokenType.cpp includes/TokenType.h includes/MyType.cpp includes/MyType.h Parsing/Parsing.cpp Parsing/Parsing.h includes/Externs.h Parsing/ParsingException.cpp Parsing/ParsingException.h Error/error.cpp Error/error.h Error/error.cpp Error/error.h SymTable/SymTable.cpp SymTable/SymTable.h SymTable/Symbol.cpp SymTable/Symbol.h SymTable/TableOP.cpp SymTable/TableOP.h includes/SymType.cpp includes/SymType.h)

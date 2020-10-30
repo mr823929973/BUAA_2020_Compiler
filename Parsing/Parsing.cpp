@@ -7,6 +7,7 @@
 using namespace Parsing;
 static std::vector<Token *>::iterator nextToken;
 static std::set<std::string> returnFunc;
+int lineNum = 0;
 
 void ParsingAnalysis() {
     nextToken = tokens.begin();
@@ -17,6 +18,7 @@ void ParsingAnalysis() {
 void Parsing::getNextToken() {
     if (nextToken > tokens.begin() && (*nextToken)->getTokenType() != (TokenType) -1) {
         fileout << *(*nextToken) << std::endl;
+        lineNum = (*nextToken)->getLineNum();
     }
 
     if (nextToken != tokens.end()) {

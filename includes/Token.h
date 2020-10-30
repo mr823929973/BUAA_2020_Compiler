@@ -3,7 +3,7 @@
 //
 
 #ifndef COMPILER_MIPS_TOKEN_H
-#define COMPILER_MIPS_TOKEN_H            std::cerr << "[error]:Undefined token type!" << std::endl;
+#define COMPILER_MIPS_TOKEN_H
 
 #include <utility>
 #include <string>

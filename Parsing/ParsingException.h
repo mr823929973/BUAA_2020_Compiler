@@ -13,7 +13,9 @@ private:
     std::string message;
 public:
     ParsingException();
+
     ParsingException(std::string message);
+
     friend std::ostream &operator<<(std::ostream &out, ParsingException &tmp);
 };
 

@@ -94,12 +94,18 @@ void LexAnalysis(const std::string &rawString) {
             }
         } else if (rawString[i] == '\"') {
             i++;
-            if(rawString[i] == '\"') error(lineNum);
-            while (isPrint(rawString[i]) && i < rawString.length()) {
+            bool fault = false;
+            if (rawString[i] == '\"') error(lineNum);
+            while (rawString[i] != '\"' && i < rawString.length()) {
+                if (!isPrint(rawString[i])) {
+                    fault = true;
+                    error(lineNum);
+                }
                 tmpToken += rawString[i];
                 i++;
             }
             if (i < rawString.length() && rawString[i] == '\"') {
+                if (fault) tmpToken = "";
                 type = TokenType::STRCON;
                 i++;
             } else {
@@ -185,7 +191,7 @@ void LexAnalysis(const std::string &rawString) {
 }
 
 void Lexing::error(int lineNum) {
-    err::error(lineNum,'a');
+    err::error(lineNum, 'a');
 }
 
 void printLexingDebug() {

@@ -9,10 +9,12 @@
 #include <vector>
 #include <set>
 #include "Token.h"
+#include "../SymTable/SymTable.h"
 
 extern std::ofstream fileout;
 extern std::ofstream fileerr;
 extern std::vector<Token *> tokens;
 extern std::set<int> errorLine;
+extern int lineNum;
 
 #endif //COMPILER_MIPS_EXTERNS_H
