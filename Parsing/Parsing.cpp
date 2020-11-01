@@ -271,9 +271,9 @@ VarType Parsing::constant() {
 void Parsing::varDefUnInit() {
     std::string name;
     VarType type;
-    if ((*nextToken)->getTokenType() != TokenType::CHARTK) {
+    if ((*nextToken)->getTokenType() == TokenType::CHARTK) {
         type = VarType::CHAR;
-    } else if ((*nextToken)->getTokenType() != TokenType::INTTK) {
+    } else if ((*nextToken)->getTokenType() == TokenType::INTTK) {
         type = VarType::INT;
     } else {
         error();
@@ -738,8 +738,8 @@ void Parsing::switchState() {
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     caseList(tmp);
-    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum, 'p');
-    defaultState();
+    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum+1, 'p');
+    else defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
     fileout << "<情况语句>" << std::endl;
