@@ -16,13 +16,15 @@ private:
 public:
     std::string name;
 
-    explicit SymTable(std::string name);
+    VarType type;
+
+    SymTable(std::string name,VarType type);
 
     ~SymTable();
 
     bool addToTable(const std::string &name, Symbol *symbol);
 
-    Symbol *getSym(const std::string &name);
+    Symbol *getSym(const std::string &Sname);
 
 };
 

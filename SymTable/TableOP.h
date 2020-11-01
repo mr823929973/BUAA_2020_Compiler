@@ -13,7 +13,7 @@
 
 namespace table {
 
-    void createTable(std::string name);
+    void createTable(std::string name,VarType type);
 
     void deleteTable();
 
@@ -23,6 +23,8 @@ namespace table {
 
     void setType(const std::string& name);
 
-    VarType getFunc(const std::string& name, const std::vector<SymType> &paraList);
+    VarType getFunc(const std::string& name, const std::vector<VarType> &paraList);
+
+    VarType getReturn();
 
 }

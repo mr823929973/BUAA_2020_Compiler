@@ -10,8 +10,8 @@
 
 static std::vector<SymTable *> SymTableStack;
 
-void table::createTable(std::string name) {
-    SymTableStack.push_back(new SymTable(std::move(name)));
+void table::createTable(std::string name, VarType type) {
+    SymTableStack.push_back(new SymTable(std::move(name),type));
 }
 
 void table::deleteTable() {
@@ -31,6 +31,7 @@ VarType table::getType(const std::string &name) {
     int i = (int) SymTableStack.size() - 1;
     while (i >= 0 && symbol == nullptr) {
         symbol = SymTableStack[i]->getSym(name);
+        i--;
     }
     if (symbol == nullptr) {
         err::error(lineNum, 'c');
@@ -44,19 +45,21 @@ void table::setType(const std::string &name) {
     int i = (int) SymTableStack.size() - 1;
     while (i >= 0 && symbol == nullptr) {
         symbol = SymTableStack[i]->getSym(name);
+        i--;
     }
     if (symbol == nullptr) {
         err::error(lineNum, 'c');
-    } else if(symbol->symType == SymType::CONST){
+    } else if (symbol->symType == SymType::CONST) {
         err::error(lineNum, 'j');
     }
 }
 
-VarType table::getFunc(const std::string &name, const std::vector<SymType> &paraList) {
+VarType table::getFunc(const std::string &name, const std::vector<VarType> &paraList) {
     Symbol *symbol = nullptr;
     int i = (int) SymTableStack.size() - 1;
     while (i >= 0 && symbol == nullptr) {
         symbol = SymTableStack[i]->getSym(name);
+        i--;
     }
     if (symbol == nullptr) {
         err::error(lineNum, 'c');
@@ -69,6 +72,10 @@ VarType table::getFunc(const std::string &name, const std::vector<SymType> &para
             }
     }
     return symbol->varType;
+}
+
+VarType table::getReturn() {
+    return SymTableStack.back()->type;
 }
 
 

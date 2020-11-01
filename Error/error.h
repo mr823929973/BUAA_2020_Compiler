@@ -9,6 +9,8 @@
 
 namespace err {
     void error(int lineNumber, char type);
+
+    void printErr();
 };
 
 

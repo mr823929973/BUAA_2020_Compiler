@@ -5,33 +5,33 @@
 #include "Symbol.h"
 
 
-Symbol::Symbol(std::string name, VarType symType) {
+Symbol::Symbol(std::string name, VarType varType) {
     this->name = std::move(name);
-    this->varType = symType;
+    this->varType = varType;
     this->symType = SymType::VAR;
     this->dimension = 0;
     this->paraList = nullptr;
 }
 
-Symbol::Symbol(std::string name, VarType symType, SymType varType) {
+Symbol::Symbol(std::string name, VarType varType, SymType symType) {
     this->name = std::move(name);
-    this->varType = symType;
-    this->symType = varType;
+    this->varType = varType;
+    this->symType = symType;
     this->dimension = 0;
     this->paraList = nullptr;
 }
 
-Symbol::Symbol(std::string name, VarType symType, int dimension) {
+Symbol::Symbol(std::string name, VarType varType, int dimension) {
     this->name = std::move(name);
-    this->varType = symType;
+    this->varType = varType;
     this->symType = SymType::ARRAY;
     this->dimension = dimension;
     this->paraList = nullptr;
 }
 
-Symbol::Symbol(std::string name, VarType symType, std::vector<SymType> *paraList) {
+Symbol::Symbol(std::string name, VarType varType, std::vector<VarType> *paraList) {
     this->name = std::move(name);
-    this->varType = symType;
+    this->varType = varType;
     this->symType = SymType::FUNC;
     this->dimension = 0;
     this->paraList = paraList;

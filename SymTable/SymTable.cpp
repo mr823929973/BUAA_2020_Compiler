@@ -3,17 +3,17 @@
 //
 
 #include "SymTable.h"
-
+#include "../includes/MyType.h"
 #include <utility>
 
 
-bool SymTable::addToTable(const std::string &name, Symbol *symbol) {
-    if (this->symbols.insert({name, symbol}).second) return true;
+bool SymTable::addToTable(const std::string &Aname, Symbol *symbol) {
+    if (this->symbols.insert({toLower(Aname), symbol}).second) return true;
     else return false;
 }
 
-Symbol *SymTable::getSym(const std::string &name) {
-    auto tmp = this->symbols.find(name);
+Symbol *SymTable::getSym(const std::string &Sname) {
+    auto tmp = this->symbols.find(toLower(Sname));
     if (tmp == symbols.end()) {
         return nullptr;
     } else {
@@ -28,6 +28,8 @@ SymTable::~SymTable() {
     }
 }
 
-SymTable::SymTable(std::string name) {
+SymTable::SymTable(std::string name, VarType type) {
     this->name = std::move(name);
+    this->type = type;
 }
+

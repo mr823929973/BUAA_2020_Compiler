@@ -3,6 +3,7 @@
 #include "Parsing/Parsing.h"
 
 #define Parsing
+#define ERRORS
 #define DEBUG
 
 int main() {
@@ -33,6 +34,10 @@ int main() {
 
 #ifdef DEBUG
     std::cout << "=======================Parsing Complete========================" << std::endl;
+#endif
+
+#ifdef ERRORS
+    err::printErr();
 #endif
 
     return 0;

@@ -4,12 +4,16 @@
 
 #include "error.h"
 
-std::set<int> errorLine;
+static std::map<int, char> errors;
 
 void err::error(int lineNumber, char type) {
-    if(!errorLine.count(lineNumber)){
-        fileerr << lineNumber << " " << type << std::endl;
-        errorLine.insert(lineNumber);
-    }
+    errors.insert({lineNumber,type});
     std::cout << "[error]:type[" << type << "]in line[" << lineNumber << "]!" << std::endl;
+}
+
+void err::printErr() {
+    for (auto & error : errors) {
+        fileerr << error.first << " " << error.second << std::endl;
+    }
+
 }

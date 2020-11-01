@@ -25,7 +25,7 @@ public:
     VarType varType;
     SymType symType;
     int dimension;
-    std::vector<SymType> *paraList;
+    std::vector<VarType> *paraList;
 
     Symbol(std::string name, VarType symType);
 
@@ -33,7 +33,7 @@ public:
 
     Symbol(std::string name, VarType symType, int dimension);
 
-    Symbol(std::string name, VarType symType, std::vector<SymType> *paraList);
+    Symbol(std::string name, VarType symType, std::vector<VarType> *paraList);
 
     ~Symbol();
 

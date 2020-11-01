@@ -6,6 +6,11 @@
 #define COMPILER_MIPS_PARSING_H
 
 #include "../includes/Externs.h"
+#include "../includes/SymType.h"
+#include "../includes/MyType.h"
+#include "../SymTable/TableOP.h"
+#include "../SymTable/Symbol.h"
+#include "../Error/error.h"
 #include "ParsingException.h"
 #include <set>
 
@@ -30,15 +35,15 @@ namespace Parsing {
 
     void varDefInit();
 
-    bool constant();
+    VarType constant();
 
     void varDefUnInit();
 
     void returnFuncDesc();
 
-    void defHead();
+    std::pair<VarType, std::string> defHead();
 
-    void argList();
+    std::vector<std::pair<VarType, std::string>> argList();
 
     void compState();
 
@@ -52,19 +57,19 @@ namespace Parsing {
 
     void relationOp();
 
-    void expression();
+    VarType expression();
 
-    void term();
+    VarType term();
 
-    void factor();
+    VarType factor();
 
     void stride();
 
     void condState();
 
-    void returnFuncState();
+    VarType returnFuncState();
 
-    void vaArgList();
+    std::vector<VarType> vaArgList();
 
     void voidFuncState();
 
@@ -78,9 +83,9 @@ namespace Parsing {
 
     void switchState();
 
-    void caseList();
+    void caseList(VarType type);
 
-    void caseState();
+    void caseState(VarType type);
 
     void defaultState();
 
@@ -92,7 +97,7 @@ namespace Parsing {
 
     void error();
 
-
+    void error(int line, char type);
 }
 
 

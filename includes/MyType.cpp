@@ -3,3 +3,10 @@
 //
 
 #include "MyType.h"
+
+std::string toLower(std::string str) {
+    for (char & i : str) {
+        i = toLower(i);
+    }
+    return str;
+}

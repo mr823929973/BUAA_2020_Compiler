@@ -31,4 +31,5 @@ inline char toLower(char tmp) {
     return (tmp >= 'A' && tmp <= 'Z') ? tmp + (char) 32 : tmp; /* NOLINT */
 }
 
+std::string toLower(std::string str);
 #endif //COMPILER_MIPS_MYTYPE_H

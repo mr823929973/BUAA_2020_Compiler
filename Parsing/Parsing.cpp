@@ -6,8 +6,8 @@
 
 using namespace Parsing;
 static std::vector<Token *>::iterator nextToken;
-static std::set<std::string> returnFunc;
 int lineNum = 0;
+int returnCount = 0;
 
 void ParsingAnalysis() {
     nextToken = tokens.begin();
@@ -27,6 +27,7 @@ void Parsing::getNextToken() {
 }
 
 void Parsing::program() {
+    table::createTable("", VarType::VOID);
     if ((*nextToken)->getTokenType() == TokenType::CONSTTK) {
         constDesc();
     }
@@ -55,6 +56,7 @@ void Parsing::program() {
     mainFunc();
     getNextToken();
     fileout << "<程序>" << std::endl;
+    table::deleteTable();
 }
 
 void Parsing::constDesc() {
@@ -64,48 +66,54 @@ void Parsing::constDesc() {
         } else {
             getNextToken();
             constDef();
-            if ((*nextToken)->getTokenType() != TokenType::SEMICN) {
-                error();
-            } else {
-                getNextToken();
-            }
+            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+            else getNextToken();
         }
     } while ((*nextToken)->getTokenType() == TokenType::CONSTTK);
     fileout << "<常量说明>" << std::endl;
 }
 
 void Parsing::constDef() {
+    std::string name;
     if ((*nextToken)->getTokenType() == TokenType::INTTK) {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        name = toLower((*nextToken)->getRawString());
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         integer();
+        table::addToTable(new Symbol(name, VarType::INT, SymType::CONST));
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+            name = toLower((*nextToken)->getRawString());
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
             getNextToken();
             integer();
+            table::addToTable(new Symbol(name, VarType::INT, SymType::CONST));
         }
     } else if ((*nextToken)->getTokenType() == TokenType::CHARTK) {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        name = toLower((*nextToken)->getRawString());
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::CHARCON) error();
         getNextToken();
+        table::addToTable(new Symbol(name, VarType::CHAR, SymType::CONST));
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+            name = toLower((*nextToken)->getRawString());
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::CHARCON) error();
             getNextToken();
+            table::addToTable(new Symbol(name, VarType::CHAR, SymType::CONST));
         }
     } else {
         error();
@@ -141,8 +149,8 @@ void Parsing::varDesc() {
             break;
         }
         varDef();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
     } while ((*nextToken)->getTokenType() == TokenType::INTTK
              || ((*nextToken)->getTokenType() == TokenType::CHARTK));
     fileout << "<变量说明>" << std::endl;
@@ -156,14 +164,17 @@ void Parsing::varDef() {
             varDefUnInit();
         }
     } else {
-        if ((nextToken + 5) < tokens.end() && (*(nextToken + 5))->getTokenType() != TokenType::LBRACK)
-            if ((nextToken + 5) < tokens.end() && (*(nextToken + 5))->getTokenType() == TokenType::ASSIGN) {
+        if ((nextToken + 5) < tokens.end() && (((*(nextToken + 5))->getTokenType() != TokenType::LBRACK)
+                                               && (*(nextToken + 4))->getTokenType() != TokenType::LBRACK))
+            if ((nextToken + 5) < tokens.end() && ((*(nextToken + 5))->getTokenType() == TokenType::ASSIGN
+                                                   || (*(nextToken + 4))->getTokenType() == TokenType::ASSIGN)) {
                 varDefInit();
             } else {
                 varDefUnInit();
             }
         else {
-            if ((nextToken + 8) < tokens.end() && (*(nextToken + 8))->getTokenType() == TokenType::ASSIGN) {
+            if ((nextToken + 8) < tokens.end() && ((*(nextToken + 8))->getTokenType() == TokenType::ASSIGN
+                                                   || ((*(nextToken + 7))->getTokenType() == TokenType::ASSIGN))) {
                 varDefInit();
             } else {
                 varDefUnInit();
@@ -174,77 +185,67 @@ void Parsing::varDef() {
 }
 
 void Parsing::varDefInit() {
-    bool type;
-    if ((*nextToken)->getTokenType() == TokenType::CHARTK) type = true;
-    else if ((*nextToken)->getTokenType() == TokenType::INTTK) type = false;
+    VarType type;
+    std::string name;
+    if ((*nextToken)->getTokenType() == TokenType::CHARTK) type = VarType::CHAR;
+    else if ((*nextToken)->getTokenType() == TokenType::INTTK) type = VarType::INT;
     else error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    name = toLower((*nextToken)->getRawString());
     getNextToken();
     if ((*nextToken)->getTokenType() == TokenType::ASSIGN) {
         getNextToken();
-        bool tmp = constant();
-        if (tmp != type) error();
+        VarType tmp = constant();
+        if (tmp != type) error(lineNum, 'o');
+        table::addToTable(new Symbol(name, type));
     } else if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
         getNextToken();
         unsigned line = unsignedInt();
         if (line <= 0) error();
-        if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+        else getNextToken();
         if ((*nextToken)->getTokenType() == TokenType::ASSIGN) {
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
-            getNextToken();
-            bool tmp = constant();
-            if (tmp != type) error();
-            for (int i = 1; i < line; i++) {
-                if ((*nextToken)->getTokenType() != TokenType::COMMA) error();
+            int i = 0;
+            do {
                 getNextToken();
-                tmp = constant();
-                if (tmp != type) error();
-            }
+                if (constant() != type) error(lineNum, 'o');
+                i++;
+            } while ((*nextToken)->getTokenType() == TokenType::COMMA);
             if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+            if (i != line) error(lineNum, 'n');
             getNextToken();
+            table::addToTable(new Symbol(name, type, 1));
         } else if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
             unsigned column = unsignedInt();
             if (column <= 0) error();
-            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-            getNextToken();
+            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+            else getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
-            getNextToken();
-            if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
-            getNextToken();
-            bool tmp = constant();
-            if (tmp != type) error();
-            for (int i = 1; i < column; i++) {
-                if ((*nextToken)->getTokenType() != TokenType::COMMA) error();
-                getNextToken();
-                tmp = constant();
-                if (tmp != type) error();
-            }
-            if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
-            getNextToken();
-            for (int j = 1; j < line; j++) {
-                if ((*nextToken)->getTokenType() != TokenType::COMMA) error();
+            int i = 0;
+            do {
+                int j = 0;
                 getNextToken();
                 if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
-                getNextToken();
-                tmp = constant();
-                if (tmp != type) error();
-                for (int i = 1; i < column; i++) {
-                    if ((*nextToken)->getTokenType() != TokenType::COMMA) error();
+                do {
                     getNextToken();
-                    tmp = constant();
-                    if (tmp != type) error();
-                }
+                    if (constant() != type) error(lineNum, 'o');
+                    j++;
+                } while ((*nextToken)->getTokenType() == TokenType::COMMA);
                 if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+                if (j != column) error(lineNum, 'n');
                 getNextToken();
-            }
+                i++;
+            } while ((*nextToken)->getTokenType() == TokenType::COMMA);
             if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+            if (i != line) error(lineNum, 'n');
             getNextToken();
+            table::addToTable(new Symbol(name, type, 2));
         } else {
             error();
         }
@@ -254,89 +255,136 @@ void Parsing::varDefInit() {
     fileout << "<变量定义及初始化>" << std::endl;
 }
 
-bool Parsing::constant() {
-    bool tmp;
+VarType Parsing::constant() {
+    VarType tmp;
     if ((*nextToken)->getTokenType() == TokenType::CHARCON) {
-        tmp = true;
+        tmp = VarType::CHAR;
         getNextToken();
     } else {
         integer();
-        tmp = false;
+        tmp = VarType::INT;
     }
     fileout << "<常量>" << std::endl;
     return tmp;
 }
 
 void Parsing::varDefUnInit() {
-    if ((*nextToken)->getTokenType() != TokenType::CHARTK
-        && (*nextToken)->getTokenType() != TokenType::INTTK) {
+    std::string name;
+    VarType type;
+    if ((*nextToken)->getTokenType() != TokenType::CHARTK) {
+        type = VarType::CHAR;
+    } else if ((*nextToken)->getTokenType() != TokenType::INTTK) {
+        type = VarType::INT;
+    } else {
         error();
     }
     do {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        name = toLower((*nextToken)->getRawString());
         getNextToken();
         if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
             unsigned tmp = unsignedInt();
             if (tmp <= 0) error();
-            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-            getNextToken();
+            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+            else getNextToken();
             if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                 getNextToken();
                 tmp = unsignedInt();
                 if (tmp <= 0) error();
-                if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-                getNextToken();
+                if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+                else getNextToken();
+                table::addToTable(new Symbol(name, type, 2));
+            } else {
+                table::addToTable(new Symbol(name, type, 1));
             }
+        } else {
+            table::addToTable(new Symbol(name, type));
         }
     } while ((*nextToken)->getTokenType() == TokenType::COMMA);
     fileout << "<变量定义无初始化>" << std::endl;
 }
 
 void Parsing::returnFuncDesc() {
-    defHead();
+    returnCount = 0;
+    std::pair<VarType, std::string> tmp = defHead();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    argList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    std::vector<std::pair<VarType, std::string>> vec = argList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+    else getNextToken();
+    auto *paraList = new std::vector<VarType>();
+    for (const std::pair<VarType, std::string> &a :vec) {
+        paraList->push_back(a.first);
+    }
+    table::addToTable(new Symbol(tmp.second, tmp.first, paraList));
+    table::createTable(tmp.second, tmp.first);
+    for (const std::pair<VarType, std::string> &a :vec) {
+        table::addToTable(new Symbol(a.second, a.first));
+    }
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
+    if (returnCount <= 0) error(lineNum, 'h');
+    returnCount = 0;
+    table::deleteTable();
     fileout << "<有返回值函数定义>" << std::endl;
 }
 
-void Parsing::defHead() {
-    if ((*nextToken)->getTokenType() != TokenType::INTTK
-        && (*nextToken)->getTokenType() != TokenType::CHARTK)
+std::pair<VarType, std::string> Parsing::defHead() {
+    std::pair<VarType, std::string> tmp;
+    if ((*nextToken)->getTokenType() == TokenType::INTTK) {
+        tmp.first = VarType::INT;
+    } else if ((*nextToken)->getTokenType() == TokenType::CHARTK) {
+        tmp.first = VarType::CHAR;
+    } else {
         error();
+    }
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
-    returnFunc.insert((*nextToken)->getRawString());
+    tmp.second = toLower((*nextToken)->getRawString());
+    //   returnFunc.insert((*nextToken)->getRawString());
     getNextToken();
     fileout << "<声明头部>" << std::endl;
+    return tmp;
 }
 
-void Parsing::argList() {
+std::vector<std::pair<VarType, std::string>> Parsing::argList() {
+    std::vector<std::pair<VarType, std::string>> vector;
+    std::pair<VarType, std::string> tmp;
     if ((*nextToken)->getTokenType() == TokenType::CHARTK
         || (*nextToken)->getTokenType() == TokenType::INTTK) {
+        if ((*nextToken)->getTokenType() == TokenType::CHARTK) {
+            tmp.first = VarType::CHAR;
+        } else {
+            tmp.first = VarType::INT;
+        }
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        tmp.second = toLower((*nextToken)->getRawString());
         getNextToken();
+        vector.push_back(tmp);
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
-            if ((*nextToken)->getTokenType() != TokenType::CHARTK
-                && (*nextToken)->getTokenType() != TokenType::INTTK)
+            if ((*nextToken)->getTokenType() == TokenType::CHARTK) {
+                tmp.first = VarType::CHAR;
+            } else if ((*nextToken)->getTokenType() == TokenType::INTTK) {
+                tmp.first = VarType::INT;
+            } else {
                 error();
+            }
             getNextToken();
             if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+            tmp.second = toLower((*nextToken)->getRawString());
             getNextToken();
+            vector.push_back(tmp);
         }
     }
     fileout << "<参数表>" << std::endl;
+    return vector;
 }
 
 void Parsing::compState() {
@@ -375,12 +423,12 @@ void Parsing::statement() {
         condState();
     } else if ((*nextToken)->getTokenType() == TokenType::SCANFTK) {
         readState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::PRINTFTK) {
         writeState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::SWITCHTK) {
         switchState();
     } else if ((*nextToken)->getTokenType() == TokenType::LBRACE) {
@@ -390,24 +438,24 @@ void Parsing::statement() {
         getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::RETURNTK) {
         returnState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
         if ((nextToken + 1) < tokens.end() &&
             (*(nextToken + 1))->getTokenType() == TokenType::LPARENT) {
-            if (returnFunc.count((*nextToken)->getRawString())) {
+            if (table::getType((*nextToken)->getRawString()) != VarType::VOID) {
                 returnFuncState();
-                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-                getNextToken();
+                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+                else getNextToken();
             } else {
                 voidFuncState();
-                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-                getNextToken();
+                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+                else getNextToken();
             }
         } else {
             assiState();
-            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-            getNextToken();
+            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+            else getNextToken();
         }
     } else if ((*nextToken)->getTokenType() == TokenType::SEMICN) {
         getNextToken();
@@ -423,24 +471,26 @@ void Parsing::loopState() {
         if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
         getNextToken();
         condition();
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+        else getNextToken();
         statement();
     } else if ((*nextToken)->getTokenType() == TokenType::FORTK) {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        table::setType((*nextToken)->getRawString());
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         expression();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
         condition();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        else getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        table::setType((*nextToken)->getRawString());
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
@@ -451,8 +501,8 @@ void Parsing::loopState() {
             error();
         getNextToken();
         stride();
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+        else getNextToken();
         statement();
     } else {
         error();
@@ -461,9 +511,9 @@ void Parsing::loopState() {
 }
 
 void Parsing::condition() {
-    expression();
+    if (expression() != VarType::INT) error(lineNum, 'f');
     relationOp();
-    expression();
+    if (expression() != VarType::INT) error(lineNum, 'f');
     fileout << "<条件>" << std::endl;
 }
 
@@ -482,61 +532,74 @@ void Parsing::relationOp() {
     }
 }
 
-void Parsing::expression() {
+VarType Parsing::expression() {
+    VarType tmp = VarType::VOID;
     if ((*nextToken)->getTokenType() == TokenType::PLUS
         || (*nextToken)->getTokenType() == TokenType::MINU) {
         getNextToken();
+        tmp = VarType::INT;
     }
-    term();
+    if (tmp == VarType::VOID) tmp = term();
+    else term();
     while ((*nextToken)->getTokenType() == TokenType::PLUS
            || (*nextToken)->getTokenType() == TokenType::MINU) {
         getNextToken();
         term();
+        tmp = VarType::INT;
     }
     fileout << "<表达式>" << std::endl;
+    return tmp;
 }
 
-void Parsing::term() {
-    factor();
+VarType Parsing::term() {
+    VarType tmp = factor();
     while ((*nextToken)->getTokenType() == TokenType::MULT
            || (*nextToken)->getTokenType() == TokenType::DIV) {
+        tmp = VarType::INT;
         getNextToken();
         factor();
     }
     fileout << "<项>" << std::endl;
+    return tmp;
 }
 
-void Parsing::factor() {
+VarType Parsing::factor() {
+    VarType tmp;
     if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
         if ((nextToken + 1) < tokens.end() &&
             (*(nextToken + 1))->getTokenType() == TokenType::LPARENT) {
-            returnFuncState();
+            tmp = returnFuncState();
         } else {
+            tmp = table::getType((*nextToken)->getRawString());
             getNextToken();
             if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                 getNextToken();
-                expression();
-                if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
-                getNextToken();
+                if (expression() != VarType::INT) error(lineNum, 'i');
+                if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+                else getNextToken();
                 if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                     getNextToken();
-                    expression();
-                    if ((*nextToken)->getTokenType() != TokenType::RBRACK)error();
-                    getNextToken();
+                    if (expression() != VarType::INT) error(lineNum, 'i');
+                    if ((*nextToken)->getTokenType() != TokenType::RBRACK)error(lineNum, 'm');
+                    else getNextToken();
                 }
             }
         }
     } else if ((*nextToken)->getTokenType() == TokenType::CHARCON) {
+        tmp = VarType::CHAR;
         getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::LPARENT) {
+        tmp = VarType::INT;
         getNextToken();
         expression();
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+        else getNextToken();
     } else {
+        tmp = VarType::INT;
         integer();
     }
     fileout << "<因子>" << std::endl;
+    return tmp;
 }
 
 void Parsing::stride() {
@@ -550,8 +613,8 @@ void Parsing::condState() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     condition();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+    else getNextToken();
     statement();
     if ((*nextToken)->getTokenType() == TokenType::ELSETK) {
         getNextToken();
@@ -560,54 +623,63 @@ void Parsing::condState() {
     fileout << "<条件语句>" << std::endl;
 }
 
-void Parsing::returnFuncState() {
+VarType Parsing::returnFuncState() {
+    std::string name;
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
-    if (!returnFunc.count((*nextToken)->getRawString())) error();
+    name = (*nextToken)->getRawString();
+    if (table::getType(name) == VarType::VOID) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    vaArgList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    std::vector<VarType> vaList = vaArgList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+    else getNextToken();
     fileout << "<有返回值函数调用语句>" << std::endl;
+    return table::getFunc(name, vaList);
 }
 
-void Parsing::vaArgList() {
+std::vector<VarType> Parsing::vaArgList() {
+    std::vector<VarType> vaList;
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) {
-        expression();
+        vaList.push_back(expression());
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
-            expression();
+            vaList.push_back(expression());
         }
     }
     fileout << "<值参数表>" << std::endl;
+    return vaList;
 }
 
 void Parsing::voidFuncState() {
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    std::string name = (*nextToken)->getRawString();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    vaArgList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    std::vector<VarType> vaList = vaArgList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
+    table::getFunc(name, vaList);
     fileout << "<无返回值函数调用语句>" << std::endl;
 }
 
-
 void Parsing::assiState() {
+    std::string name;
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    name = ((*nextToken)->getRawString());
     getNextToken();
+    table::setType(name);
     if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
         getNextToken();
         expression();
-        if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-        getNextToken();
+        if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+        else getNextToken();
         if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
             expression();
-            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error();
-            getNextToken();
+            if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
+            else getNextToken();
         }
     }
     if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
@@ -622,9 +694,10 @@ void Parsing::readState() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    table::setType((*nextToken)->getRawString());
     getNextToken();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
     fileout << "<读语句>" << std::endl;
 }
 
@@ -642,8 +715,8 @@ void Parsing::writeState() {
     } else {
         expression();
     }
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
     fileout << "<写语句>" << std::endl;
 }
 
@@ -654,34 +727,36 @@ void Parsing::strcon() {
 }
 
 void Parsing::switchState() {
+    VarType tmp;
     if ((*nextToken)->getTokenType() != TokenType::SWITCHTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    expression();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    tmp = expression();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
-    caseList();
+    caseList(tmp);
+    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum, 'p');
     defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
     fileout << "<情况语句>" << std::endl;
 }
 
-void Parsing::caseList() {
-    caseState();
+void Parsing::caseList(VarType type) {
+    caseState(type);
     while ((*nextToken)->getTokenType() == TokenType::CASETK) {
-        caseState();
+        caseState(type);
     }
     fileout << "<情况表>" << std::endl;
 }
 
-void Parsing::caseState() {
+void Parsing::caseState(VarType type) {
     if ((*nextToken)->getTokenType() != TokenType::CASETK) error();
     getNextToken();
-    constant();
+    if (constant() != type) error(lineNum, 'o');
     if ((*nextToken)->getTokenType() != TokenType::COLON) error();
     getNextToken();
     statement();
@@ -700,30 +775,51 @@ void Parsing::defaultState() {
 void Parsing::returnState() {
     if ((*nextToken)->getTokenType() != TokenType::RETURNTK) error();
     getNextToken();
+    returnCount++;
     if ((*nextToken)->getTokenType() == TokenType::LPARENT) {
-        getNextToken();
-        expression();
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-        getNextToken();
+        if (table::getReturn() == VarType::VOID) {
+            error(lineNum, 'g');
+            getNextToken();
+            expression();
+        } else {
+            getNextToken();
+            if (table::getReturn() != expression()) error(lineNum, 'h');
+        }
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+        else getNextToken();
+    } else {
+        if (table::getReturn() != VarType::VOID) error(lineNum, 'h');
     }
     fileout << "<返回语句>" << std::endl;
 }
 
 void Parsing::voidFuncDesc() {
+    std::string name;
     if ((*nextToken)->getTokenType() != TokenType::VOIDTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+    name = toLower((*nextToken)->getRawString());
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    argList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    std::vector<std::pair<VarType, std::string>> vec = argList();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
+    auto *paraList = new std::vector<VarType>();
+    for (const std::pair<VarType, std::string> &a :vec) {
+        paraList->push_back(a.first);
+    }
+    table::addToTable(new Symbol(name, VarType::VOID, paraList));
+    table::createTable(name, VarType::VOID);
+    for (const std::pair<VarType, std::string> &a :vec) {
+        table::addToTable(new Symbol(a.second, a.first));
+    }
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
+    table::deleteTable();
     fileout << "<无返回值函数定义>" << std::endl;
 }
 
@@ -734,17 +830,24 @@ void Parsing::mainFunc() {
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error();
-    getNextToken();
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    else getNextToken();
+    table::addToTable(new Symbol("main", VarType::VOID, new std::vector<VarType>));
+    table::createTable("main", VarType::VOID);
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
+    table::deleteTable();
     fileout << "<主函数>" << std::endl;
 }
 
 void Parsing::error() {
     std::cerr << *(*nextToken) << " " << (*nextToken)->getLineNum() << std::endl;
     throw ParsingException();
+}
+
+void Parsing::error(int line, char type) {
+    err::error(line, type);
 }
