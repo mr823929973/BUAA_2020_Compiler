@@ -728,6 +728,7 @@ void Parsing::strcon() {
 
 void Parsing::switchState() {
     VarType tmp;
+    bool err = false;
     if ((*nextToken)->getTokenType() != TokenType::SWITCHTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
@@ -738,9 +739,10 @@ void Parsing::switchState() {
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     caseList(tmp);
-    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum + 1, 'p');
+    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) err = true;
     else defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
+    if(err) error(lineNum,'p');
     getNextToken();
     fileout << "<情况语句>" << std::endl;
 }
