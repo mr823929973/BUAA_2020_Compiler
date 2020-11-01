@@ -742,8 +742,8 @@ void Parsing::switchState() {
     if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) err = true;
     else defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
-    if(err) error(lineNum,'p');
     getNextToken();
+    if(err) error(lineNum,'p');
     fileout << "<情况语句>" << std::endl;
 }
 
