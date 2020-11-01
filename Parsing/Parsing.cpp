@@ -66,7 +66,7 @@ void Parsing::constDesc() {
         } else {
             getNextToken();
             constDef();
-            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
             else getNextToken();
         }
     } while ((*nextToken)->getTokenType() == TokenType::CONSTTK);
@@ -149,7 +149,7 @@ void Parsing::varDesc() {
             break;
         }
         varDef();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
     } while ((*nextToken)->getTokenType() == TokenType::INTTK
              || ((*nextToken)->getTokenType() == TokenType::CHARTK));
@@ -423,11 +423,11 @@ void Parsing::statement() {
         condState();
     } else if ((*nextToken)->getTokenType() == TokenType::SCANFTK) {
         readState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::PRINTFTK) {
         writeState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::SWITCHTK) {
         switchState();
@@ -438,23 +438,23 @@ void Parsing::statement() {
         getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::RETURNTK) {
         returnState();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
     } else if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
         if ((nextToken + 1) < tokens.end() &&
             (*(nextToken + 1))->getTokenType() == TokenType::LPARENT) {
             if (table::getType((*nextToken)->getRawString()) != VarType::VOID) {
                 returnFuncState();
-                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
                 else getNextToken();
             } else {
                 voidFuncState();
-                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+                if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
                 else getNextToken();
             }
         } else {
             assiState();
-            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+            if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
             else getNextToken();
         }
     } else if ((*nextToken)->getTokenType() == TokenType::SEMICN) {
@@ -484,10 +484,10 @@ void Parsing::loopState() {
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         expression();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
         condition();
-        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum,'k');
+        if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
         table::setType((*nextToken)->getRawString());
@@ -640,7 +640,7 @@ VarType Parsing::returnFuncState() {
 
 std::vector<VarType> Parsing::vaArgList() {
     std::vector<VarType> vaList;
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) {
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT && (*nextToken)->getTokenType() != TokenType::SEMICN) {
         vaList.push_back(expression());
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
             getNextToken();
@@ -658,7 +658,7 @@ void Parsing::voidFuncState() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     std::vector<VarType> vaList = vaArgList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     table::getFunc(name, vaList);
     fileout << "<无返回值函数调用语句>" << std::endl;
@@ -696,7 +696,7 @@ void Parsing::readState() {
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
     table::setType((*nextToken)->getRawString());
     getNextToken();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     fileout << "<读语句>" << std::endl;
 }
@@ -715,7 +715,7 @@ void Parsing::writeState() {
     } else {
         expression();
     }
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     fileout << "<写语句>" << std::endl;
 }
@@ -733,12 +733,12 @@ void Parsing::switchState() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     tmp = expression();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     caseList(tmp);
-    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum+1, 'p');
+    if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error(lineNum + 1, 'p');
     else defaultState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
@@ -785,7 +785,7 @@ void Parsing::returnState() {
             getNextToken();
             if (table::getReturn() != expression()) error(lineNum, 'h');
         }
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
         else getNextToken();
     } else {
         if (table::getReturn() != VarType::VOID) error(lineNum, 'h');
@@ -803,7 +803,7 @@ void Parsing::voidFuncDesc() {
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     std::vector<std::pair<VarType, std::string>> vec = argList();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     auto *paraList = new std::vector<VarType>();
     for (const std::pair<VarType, std::string> &a :vec) {
@@ -830,7 +830,7 @@ void Parsing::mainFunc() {
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum,'l');
+    if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     table::addToTable(new Symbol("main", VarType::VOID, new std::vector<VarType>));
     table::createTable("main", VarType::VOID);
