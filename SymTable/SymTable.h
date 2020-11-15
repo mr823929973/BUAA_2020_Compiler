@@ -18,6 +18,8 @@ public:
 
     VarType type;
 
+    int offset;
+
     SymTable(std::string name,VarType type);
 
     ~SymTable();

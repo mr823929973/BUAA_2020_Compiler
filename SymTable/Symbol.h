@@ -13,12 +13,11 @@
 
 class Symbol {
 public:
-    /* TO DO
+    /*
+     * TODO
      * int value;
      * int length;
-     * int wide;
-     * std::map<int,int> *
-     * std::map<std::pair<int,int>,int> *
+     * int wide
      * ......
      */
     std::string name;
@@ -26,10 +25,12 @@ public:
     SymType symType;
     int dimension;
     std::vector<VarType> *paraList;
+    unsigned offset;
+    int constValue;
 
-    Symbol(std::string name, VarType symType);
+    Symbol(int offset,std::string name, VarType symType);
 
-    Symbol(std::string name, VarType symType, SymType varType);
+    Symbol(std::string name, VarType symType, SymType varType,int constValue);
 
     Symbol(std::string name, VarType symType, int dimension);
 

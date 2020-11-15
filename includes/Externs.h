@@ -13,6 +13,8 @@
 
 extern std::ofstream fileout;
 extern std::ofstream fileerr;
+extern std::ofstream MidCodeFile;
+extern std::ofstream AssCodeFile;
 extern std::vector<Token *> tokens;
 extern int lineNum;
 

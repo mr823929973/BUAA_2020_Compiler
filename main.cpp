@@ -40,5 +40,12 @@ int main() {
     err::printErr();
 #endif
 
+#ifdef DEBUG
+    std::cout << "==================Middle Code generating=======================" << std::endl;
+    MidCodeOP::printMidCode();
+    std::cout << "===================Middle Code complete========================" << std::endl;
+#endif
+    MidCodeOP::printAssCode();
+
     return 0;
 }

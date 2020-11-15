@@ -32,4 +32,6 @@ inline char toLower(char tmp) {
 }
 
 std::string toLower(std::string str);
+
+std::string toEscape(const std::string& str);
 #endif //COMPILER_MIPS_MYTYPE_H

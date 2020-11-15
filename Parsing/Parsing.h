@@ -12,6 +12,7 @@
 #include "../SymTable/Symbol.h"
 #include "../Error/error.h"
 #include "ParsingException.h"
+#include "../MidCode/MidCodeOP.h"
 #include <set>
 
 void ParsingAnalysis();
@@ -37,6 +38,8 @@ namespace Parsing {
 
     VarType constant();
 
+    VarType constant(int &value);
+
     void varDefUnInit();
 
     void returnFuncDesc();
@@ -57,11 +60,11 @@ namespace Parsing {
 
     void relationOp();
 
-    VarType expression();
+    VarType expression(int &tmpVa);
 
-    VarType term();
+    VarType term(int &tmpVa);
 
-    VarType factor();
+    VarType factor(int &tmpVa);
 
     void stride();
 
@@ -79,7 +82,7 @@ namespace Parsing {
 
     void writeState();
 
-    void strcon();
+    int strcon();
 
     void switchState();
 
