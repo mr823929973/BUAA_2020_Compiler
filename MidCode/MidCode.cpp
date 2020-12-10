@@ -46,6 +46,7 @@ void MidCode::toAssCode() const {
             //TODO
 
             AssCodeFile << "jal FUNC_" << srcA << std::endl;
+
             break;
         case Operator::LOD: {
             if (srcB.empty()) {
