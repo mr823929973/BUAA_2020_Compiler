@@ -4,7 +4,7 @@
 
 #define Parsing
 #define ERRORS
-//#define DEBUG
+#define DEBUG
 
 int main() {
     std::string rawString = read();

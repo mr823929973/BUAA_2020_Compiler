@@ -76,7 +76,7 @@ void MidCode::toAssCode() const {
             AssCodeFile << "lw $t1, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp, 4" << std::endl;
             AssCodeFile << "lw $t0, 0($sp)" << std::endl;
-            AssCodeFile << "add $t0, $t0, $t1" << std::endl;
+            AssCodeFile << "addu $t0, $t0, $t1" << std::endl;
             AssCodeFile << "sw $t0, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
@@ -87,7 +87,7 @@ void MidCode::toAssCode() const {
             AssCodeFile << "lw $t1, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp, 4" << std::endl;
             AssCodeFile << "lw $t0, 0($sp)" << std::endl;
-            AssCodeFile << "sub $t0, $t0, $t1" << std::endl;
+            AssCodeFile << "subu $t0, $t0, $t1" << std::endl;
             AssCodeFile << "sw $t0, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
