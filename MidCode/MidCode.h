@@ -7,6 +7,7 @@
 
 #include <string>
 #include "Operator.h"
+#include "../includes/MyType.h"
 #include "../SymTable/TableOP.h"
 #include "../includes/Externs.h"
 
