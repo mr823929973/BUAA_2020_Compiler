@@ -675,6 +675,13 @@ VarType Parsing::expression(int &tmpVa) {
                                               "t" + std::to_string(tmpVa)));
         }
     }
+    if (minu) {
+        int second = tmpVa;
+        tmpVa++;
+        MidCodeOP::addMidCode(new MidCode(Operator::MINU,
+                                          "0", "t" + std::to_string(second), "t" + std::to_string(tmpVa)));
+        minu = false;
+    }
     fileout << "<表达式>" << std::endl;
     return tmp;
 }
