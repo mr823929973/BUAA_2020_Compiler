@@ -651,6 +651,13 @@ VarType Parsing::expression(int &tmpVa) {
     else term(tmpVa);
     while ((*nextToken)->getTokenType() == TokenType::PLUS
            || (*nextToken)->getTokenType() == TokenType::MINU) {
+        if (minu) {
+            int second = tmpVa;
+            tmpVa++;
+            MidCodeOP::addMidCode(new MidCode(Operator::MINU,
+                                              "0", "t" + std::to_string(second), "t" + std::to_string(tmpVa)));
+            minu = false;
+        }
         bool plus = (*nextToken)->getTokenType() == TokenType::PLUS;
         int first = tmpVa;
         getNextToken();
@@ -667,12 +674,6 @@ VarType Parsing::expression(int &tmpVa) {
                                               "t" + std::to_string(first), "t" + std::to_string(second),
                                               "t" + std::to_string(tmpVa)));
         }
-    }
-    if (minu) {
-        int second = tmpVa;
-        tmpVa++;
-        MidCodeOP::addMidCode(new MidCode(Operator::MINU,
-                                          "0", "t" + std::to_string(second), "t" + std::to_string(tmpVa)));
     }
     fileout << "<表达式>" << std::endl;
     return tmp;

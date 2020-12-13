@@ -48,18 +48,21 @@ void MidCode::toAssCode() const {
             }
             break;
         }
-        case Operator::FUNC:
+        case Operator::FUNC: {
             AssCodeFile << "FUNC_" << srcA << ":" << std::endl;
-            AssCodeFile << "move $fp, $s1" << std::endl;
+            AssCodeFile << "move $fp, $sp" << std::endl;
+            Symbol *tmp = table::getSymbol(srcA);
+            int args = (int) (tmp->paraList->size()) * 4;
+            AssCodeFile << "addi $fp, $fp, " << args << std::endl;
             AssCodeFile << "addi $sp, $fp, -" << table::getFuncOffset(srcA) << std::endl;
             table::createTable(srcA, VarType::VOID);
             break;
+        }
         case Operator::CALL:
             AssCodeFile << "sw $ra, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp ,-4" << std::endl;
             AssCodeFile << "sw $fp, 0($sp)" << std::endl;
             AssCodeFile << "addi $sp, $sp ,-4" << std::endl;
-            AssCodeFile << "move $s1, $sp" << std::endl;
             break;
         case Operator::CALL_END:
             AssCodeFile << "jal FUNC_" << srcA << std::endl;
