@@ -56,9 +56,9 @@ namespace Parsing {
 
     void loopState();
 
-    void condition();
+    void condition(int &ret);
 
-    void relationOp();
+    void relationOp(int &ret);
 
     VarType expression(int &tmpVa);
 
@@ -66,7 +66,7 @@ namespace Parsing {
 
     VarType factor(int &tmpVa);
 
-    void stride();
+    void stride(u_int &tmp);
 
     void condState();
 
@@ -86,11 +86,11 @@ namespace Parsing {
 
     void switchState();
 
-    void caseList(VarType type);
+    void caseList(VarType type,int& caseNum,int label);
 
-    void caseState(VarType type);
+    void caseState(VarType type,int& caseNum,int label);
 
-    void defaultState();
+    void defaultState(int &caseNum,int label);
 
     void returnState();
 

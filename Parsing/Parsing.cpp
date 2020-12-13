@@ -8,6 +8,7 @@ using namespace Parsing;
 static std::vector<Token *>::iterator nextToken;
 int offset = 0;
 int lineNum = 0;
+int branchCount = 0;
 int returnCount = 0;
 
 void ParsingAnalysis() {
@@ -344,9 +345,6 @@ void Parsing::varDefUnInit() {
     fileout << "<变量定义无初始化>" << std::endl;
 }
 
-/*
- * TODO
- */
 void Parsing::returnFuncDesc() {
     offset = 0;
     returnCount = 0;
@@ -511,67 +509,129 @@ void Parsing::statement() {
 }
 
 void Parsing::loopState() {
+    branchCount++;
+    int label = branchCount;
+    int ret = 0;
     if ((*nextToken)->getTokenType() == TokenType::WHILETK) {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
         getNextToken();
-        condition();
+        MidCodeOP::addMidCode(new MidCode(Operator::WHILE,
+                                          std::to_string(label),
+                                          "START", ""));
+        condition(ret);
+        MidCodeOP::addMidCode(new MidCode(Operator::WHILE,
+                                          std::to_string(label),
+                                          std::to_string(ret), "DO"));
         if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
         else getNextToken();
         statement();
+        MidCodeOP::addMidCode(new MidCode(Operator::WHILE,
+                                          std::to_string(label),
+                                          "END", ""));
     } else if ((*nextToken)->getTokenType() == TokenType::FORTK) {
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
-        table::setType((*nextToken)->getRawString());
+        std::string name = (*nextToken)->getRawString();
+        table::setType(name);
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         int tmp = 0;
         expression(tmp);
+        MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
+                                          name, "", "t" + std::to_string(tmp)));
         if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
-        condition();
+        MidCodeOP::addMidCode(new MidCode(Operator::FOR,
+                                          std::to_string(label),
+                                          "START", ""));
+        condition(ret);
+        MidCodeOP::addMidCode(new MidCode(Operator::FOR,
+                                          std::to_string(label),
+                                          std::to_string(ret), "DO"));
         if ((*nextToken)->getTokenType() != TokenType::SEMICN) error(lineNum, 'k');
         else getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
-        table::setType((*nextToken)->getRawString());
+        std::string name2 = (*nextToken)->getRawString();
+        table::setType(name2);
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
         getNextToken();
         if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
+        std::string name1 = (*nextToken)->getRawString();
         getNextToken();
-        if ((*nextToken)->getTokenType() != TokenType::PLUS
-            && (*nextToken)->getTokenType() != TokenType::MINU)
+        bool isMinus = false;
+        if ((*nextToken)->getTokenType() == TokenType::PLUS) {
+            isMinus = false;
+        } else if ((*nextToken)->getTokenType() == TokenType::MINU) {
+            isMinus = true;
+        } else {
             error();
+        }
         getNextToken();
-        stride();
+        u_int strideNum = 0;
+        stride(strideNum);
+        MidCodeOP::addMidCode(new MidCode(Operator::LOD,
+                                          name1, "",
+                                          "stride"));
+        MidCodeOP::addMidCode(new MidCode(Operator::LOD,
+                                          "", std::to_string(strideNum),
+                                          "stride"));
+        if (!isMinus) {
+            MidCodeOP::addMidCode(new MidCode(Operator::ADD, "", "", ""));
+        } else {
+            MidCodeOP::addMidCode(new MidCode(Operator::MINU, "", "", ""));
+        }
+
         if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
         else getNextToken();
         statement();
+        MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
+                                          name2, "", "STRIDE"));
+        MidCodeOP::addMidCode(new MidCode(Operator::FOR,
+                                          std::to_string(label),
+                                          "END", ""));
     } else {
         error();
     }
     fileout << "<循环语句>" << std::endl;
 }
 
-void Parsing::condition() {
+void Parsing::condition(int &ret) {
     int tmp = 0;
     if (expression(tmp) != VarType::INT) error(lineNum, 'f');
-    relationOp();
+    relationOp(ret);
     if (expression(tmp) != VarType::INT) error(lineNum, 'f');
     fileout << "<条件>" << std::endl;
 }
 
-void Parsing::relationOp() {
+void Parsing::relationOp(int &ret) {
     switch ((*nextToken)->getTokenType()) {
         case TokenType::LSS:
+            ret = 1;
+            getNextToken();
+            break;
         case TokenType::LEQ:
+            ret = 2;
+            getNextToken();
+            break;
         case TokenType::GRE:
+            ret = 3;
+            getNextToken();
+            break;
         case TokenType::GEQ:
+            ret = 4;
+            getNextToken();
+            break;
         case TokenType::EQL:
+            ret = 5;
+            getNextToken();
+            break;
         case TokenType::NEQ:
+            ret = 6;
             getNextToken();
             break;
         default:
@@ -588,7 +648,6 @@ VarType Parsing::expression(int &tmpVa) {
         getNextToken();
         tmp = VarType::INT;
     }
-
     if (tmp == VarType::VOID) tmp = term(tmpVa);
     else term(tmpVa);
     while ((*nextToken)->getTokenType() == TokenType::PLUS
@@ -647,7 +706,6 @@ VarType Parsing::term(int &tmpVa) {
 
 VarType Parsing::factor(int &tmpVa) {
     VarType tmp;
-    // TODO
     if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
         std::string name = (*nextToken)->getRawString();
         if ((nextToken + 1) < tokens.end() &&
@@ -717,24 +775,36 @@ VarType Parsing::factor(int &tmpVa) {
     return tmp;
 }
 
-void Parsing::stride() {
-    unsignedInt();
+void Parsing::stride(u_int &tmp) {
+    tmp = unsignedInt();
     fileout << "<步长>" << std::endl;
 }
 
 void Parsing::condState() {
+    branchCount++;
+    int label = branchCount;
     if ((*nextToken)->getTokenType() != TokenType::IFTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
-    condition();
+    int tmp = 0;
+    condition(tmp);
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::IF,
+                                      std::to_string(label),
+                                      std::to_string(tmp), "START"));
     statement();
+    MidCodeOP::addMidCode(new MidCode(Operator::IF,
+                                      std::to_string(label),
+                                      "ELSE", ""));
     if ((*nextToken)->getTokenType() == TokenType::ELSETK) {
         getNextToken();
         statement();
     }
+    MidCodeOP::addMidCode(new MidCode(Operator::IF,
+                                      std::to_string(label),
+                                      "END", ""));
     fileout << "<条件语句>" << std::endl;
 }
 
@@ -890,50 +960,68 @@ int Parsing::strcon() {
 }
 
 void Parsing::switchState() {
+    branchCount++;
+    int label = branchCount;
     VarType tmp;
     bool err = false;
-    int tmpVa;
+    int tmpVa = 0;
     if ((*nextToken)->getTokenType() != TokenType::SWITCHTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     tmp = expression(tmpVa);
+    MidCodeOP::addMidCode(new MidCode(Operator::SWITCH,
+                                      std::to_string(label), "", "START"));
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
-    caseList(tmp);
+    int caseNum = 0;
+    caseList(tmp, caseNum, label);
     if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) err = true;
-    else defaultState();
+    else defaultState(caseNum, label);
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
     if (err) error(lineNum, 'p');
+    MidCodeOP::addMidCode(new MidCode(Operator::SWITCH,
+                                      std::to_string(label), "", "END"));
     fileout << "<情况语句>" << std::endl;
 }
 
-void Parsing::caseList(VarType type) {
-    caseState(type);
+void Parsing::caseList(VarType type, int &caseNum, int label) {
+    caseState(type, caseNum, label);
     while ((*nextToken)->getTokenType() == TokenType::CASETK) {
-        caseState(type);
+        caseNum++;
+        caseState(type, caseNum, label);
     }
+    caseNum++;
     fileout << "<情况表>" << std::endl;
 }
 
-void Parsing::caseState(VarType type) {
+void Parsing::caseState(VarType type, int &caseNum, int label) {
     if ((*nextToken)->getTokenType() != TokenType::CASETK) error();
     getNextToken();
-    if (constant() != type) error(lineNum, 'o');
+    int value;
+    if (constant(value) != type) error(lineNum, 'o');
     if ((*nextToken)->getTokenType() != TokenType::COLON) error();
     getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::SWITCH,
+                                      std::to_string(label),
+                                      std::to_string(caseNum),
+                                      std::to_string(value)));
     statement();
     fileout << "<情况子语句>" << std::endl;
 }
 
-void Parsing::defaultState() {
+void Parsing::defaultState(int &caseNum, int label) {
     if ((*nextToken)->getTokenType() != TokenType::DEFAULTTK) error();
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::COLON) error();
     getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::SWITCH,
+                                      std::to_string(label),
+                                      std::to_string(caseNum),
+                                      "DEFAULT"));
     statement();
     fileout << "<缺省>" << std::endl;
 }
@@ -962,9 +1050,6 @@ void Parsing::returnState() {
     fileout << "<返回语句>" << std::endl;
 }
 
-/*
- * TODO
- */
 void Parsing::voidFuncDesc() {
     offset = 0;
     std::string name;

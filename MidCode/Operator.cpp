@@ -51,8 +51,20 @@ std::ostream &operator<<(std::ostream &out, Operator &tmp) {
         case Operator::ARRAY:
             out << "ARRAY";
             break;
+        case Operator::IF:
+            out << "IF";
+            break;
+        case Operator::WHILE:
+            out << "WHILE";
+            break;
+        case Operator::FOR:
+            out << "FOR";
+            break;
+        case Operator::SWITCH:
+            out << "SWITCH";
+            break;
         default:
-           assert(false);
+            assert(false);
     }
     return out;
 }

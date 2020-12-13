@@ -223,5 +223,138 @@ void MidCode::toAssCode() const {
             AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
         }
+        case Operator::IF: {
+            if (!srcC.empty()) {
+                int tmp = std::stoi(srcB);
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                switch (tmp) {
+                    case 1: //<
+                        AssCodeFile << "bge $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    case 2: //<=
+                        AssCodeFile << "bgt $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    case 3: //>
+                        AssCodeFile << "ble $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    case 4: //>=
+                        AssCodeFile << "blt $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    case 5: //==
+                        AssCodeFile << "bne $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    case 6: //!=
+                        AssCodeFile << "beq $t0, $t1, " << "IF_" << srcA << "_ELSE" << std::endl;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                if (srcB == "ELSE") {
+                    AssCodeFile << "j IF_" << srcA << "_END" << std::endl;
+                }
+                AssCodeFile << "IF_" << srcA << "_" << srcB << ":" << std::endl;
+            }
+            break;
+        }
+        case Operator::WHILE: {
+            if (!srcC.empty()) {
+                int tmp = std::stoi(srcB);
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                switch (tmp) {
+                    case 1: //<
+                        AssCodeFile << "bge $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    case 2: //<=
+                        AssCodeFile << "bgt $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    case 3: //>
+                        AssCodeFile << "ble $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    case 4: //>=
+                        AssCodeFile << "blt $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    case 5: //==
+                        AssCodeFile << "bne $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    case 6: //!=
+                        AssCodeFile << "beq $t0, $t1, " << "WHILE_" << srcA << "_END" << std::endl;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                if (srcB == "END") {
+                    AssCodeFile << "j WHILE_" << srcA << "_START" << std::endl;
+                }
+                AssCodeFile << "WHILE_" << srcA << "_" << srcB << ":" << std::endl;
+            }
+            break;
+        }
+        case Operator::FOR: {
+            if (!srcC.empty()) {
+                int tmp = std::stoi(srcB);
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                switch (tmp) {
+                    case 1: //<
+                        AssCodeFile << "bge $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    case 2: //<=
+                        AssCodeFile << "bgt $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    case 3: //>
+                        AssCodeFile << "ble $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    case 4: //>=
+                        AssCodeFile << "blt $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    case 5: //==
+                        AssCodeFile << "bne $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    case 6: //!=
+                        AssCodeFile << "beq $t0, $t1, " << "FOR_" << srcA << "_END" << std::endl;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                if (srcB == "END") {
+                    AssCodeFile << "j FOR_" << srcA << "_START" << std::endl;
+                }
+                AssCodeFile << "FOR_" << srcA << "_" << srcB << ":" << std::endl;
+            }
+            break;
+        }
+        case Operator::SWITCH: {
+            if (!srcB.empty()) {
+                if (std::stoi(srcB) > 0) {
+                    AssCodeFile << "j SWITCH_" << srcA << "_END" << std::endl;
+                }
+                AssCodeFile << "SWITCH_" << srcA << "_CASE" << srcB << ":" << std::endl;
+                if (srcC != "DEFAULT") {
+                    AssCodeFile << "li $t1, " << srcC << std::endl;
+                    AssCodeFile << "bne $t0, $t1, " << "SWITCH_" << srcA << "_CASE" << std::stoi(srcB) + 1 << std::endl;
+                }
+            } else {
+                if (srcC == "START") {
+                    AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                    AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                } else {
+                    AssCodeFile << "SWITCH_" << srcA << "_END" << ":" << std::endl;
+                }
+
+            }
+            break;
+        }
     }
+
 }

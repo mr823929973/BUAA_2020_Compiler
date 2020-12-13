@@ -13,13 +13,6 @@
 
 class Symbol {
 public:
-    /*
-     * TODO
-     * int value;
-     * int length;
-     * int wide
-     * ......
-     */
     std::string name;
     VarType varType;
     SymType symType;

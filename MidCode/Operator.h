@@ -24,7 +24,11 @@ enum class Operator {
     PRINTF,
     FUNC_END,
     END,
-    ARRAY
+    ARRAY,
+    IF,
+    WHILE,
+    FOR,
+    SWITCH
 };
 
 std::ostream &operator<<(std::ostream &out, Operator &tmp);
