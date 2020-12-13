@@ -55,7 +55,7 @@ void MidCode::toAssCode() const {
             int args = (int) (tmp->paraList->size()) * 4;
             AssCodeFile << "addi $fp, $fp, " << args << std::endl;
             AssCodeFile << "addi $sp, $fp, -" << table::getFuncOffset(srcA) << std::endl;
-            table::createTable(srcA, VarType::VOID);
+            table::createTable(toLower(srcA), VarType::VOID);
             break;
         }
         case Operator::CALL:
@@ -201,7 +201,7 @@ void MidCode::toAssCode() const {
         }
 
         case Operator::FUNC_END:
-            table::createTable(srcA, VarType::VOID);
+            table::deleteTable();
             break;
         case Operator::END:
             AssCodeFile << "li $v0, 10" << srcA << std::endl;
