@@ -574,6 +574,9 @@ void Parsing::loopState() {
         getNextToken();
         u_int strideNum = 0;
         stride(strideNum);
+        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
+        else getNextToken();
+        statement();
         MidCodeOP::addMidCode(new MidCode(Operator::LOD,
                                           name1, "",
                                           "stride"));
@@ -585,10 +588,6 @@ void Parsing::loopState() {
         } else {
             MidCodeOP::addMidCode(new MidCode(Operator::MINU, "", "", ""));
         }
-
-        if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
-        else getNextToken();
-        statement();
         MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
                                           name2, "", "STRIDE"));
         MidCodeOP::addMidCode(new MidCode(Operator::FOR,

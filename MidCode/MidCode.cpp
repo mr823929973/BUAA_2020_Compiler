@@ -114,13 +114,21 @@ void MidCode::toAssCode() const {
             break;
         }
         case Operator::MINU: {
-            AssCodeFile << "addi $sp, $sp, 4" << std::endl;
-            AssCodeFile << "lw $t1, 0($sp)" << std::endl;
-            AssCodeFile << "addi $sp, $sp, 4" << std::endl;
-            AssCodeFile << "lw $t0, 0($sp)" << std::endl;
-            AssCodeFile << "subu $t0, $t0, $t1" << std::endl;
-            AssCodeFile << "sw $t0, 0($sp)" << std::endl;
-            AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            if (srcA != "0") {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "subu $t0, $t0, $t1" << std::endl;
+                AssCodeFile << "sw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            } else {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "subu $t0, $0, $t0" << std::endl;
+                AssCodeFile << "sw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            }
             break;
         }
         case Operator::MULT: {
