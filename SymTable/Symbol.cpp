@@ -5,16 +5,16 @@
 #include "Symbol.h"
 
 
-Symbol::Symbol(int offset,std::string name, VarType varType) {
+Symbol::Symbol(int offset, std::string name, VarType varType) {
     this->name = std::move(name);
     this->varType = varType;
     this->symType = SymType::VAR;
     this->dimension = 0;
     this->paraList = nullptr;
-    this->offset =offset;
+    this->offset = offset;
 }
 
-Symbol::Symbol(std::string name, VarType varType, SymType symType,int constValue) {
+Symbol::Symbol(std::string name, VarType varType, SymType symType, int constValue) {
     this->name = std::move(name);
     this->varType = varType;
     this->symType = symType;
@@ -23,12 +23,13 @@ Symbol::Symbol(std::string name, VarType varType, SymType symType,int constValue
     this->constValue = constValue;
 }
 
-Symbol::Symbol(std::string name, VarType varType, int dimension) {
+Symbol::Symbol(int offset, std::string name, VarType varType, int dimension) {
     this->name = std::move(name);
     this->varType = varType;
     this->symType = SymType::ARRAY;
     this->dimension = dimension;
     this->paraList = nullptr;
+    this->offset = offset;
 }
 
 Symbol::Symbol(std::string name, VarType varType, std::vector<VarType> *paraList) {

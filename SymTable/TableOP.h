@@ -36,4 +36,6 @@ namespace table {
     int getFuncOffset(const std::string &name);
 
     Symbol *getSymbol(const std::string &name);
+
+    int getDim(const std::string &name);
 }

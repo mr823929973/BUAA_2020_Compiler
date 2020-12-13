@@ -15,6 +15,9 @@ std::ostream &operator<<(std::ostream &out, Operator &tmp) {
         case Operator::CALL:
             out << "CALL";
             break;
+        case Operator::CALL_END:
+            out << "CALL_END";
+            break;
         case Operator::LOD:
             out << "LOAD";
             break;
@@ -45,6 +48,11 @@ std::ostream &operator<<(std::ostream &out, Operator &tmp) {
         case Operator::FUNC_END:
             out << "FUNC_END";
             break;
+        case Operator::ARRAY:
+            out << "ARRAY";
+            break;
+        default:
+           assert(false);
     }
     return out;
 }

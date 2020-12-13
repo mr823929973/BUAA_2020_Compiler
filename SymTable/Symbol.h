@@ -25,14 +25,14 @@ public:
     SymType symType;
     int dimension;
     std::vector<VarType> *paraList;
-    unsigned offset;
-    int constValue;
+    unsigned offset{};
+    int constValue{};
 
     Symbol(int offset,std::string name, VarType symType);
 
     Symbol(std::string name, VarType symType, SymType varType,int constValue);
 
-    Symbol(std::string name, VarType symType, int dimension);
+    Symbol(int offset,std::string name, VarType symType, int dimension);
 
     Symbol(std::string name, VarType symType, std::vector<VarType> *paraList);
 

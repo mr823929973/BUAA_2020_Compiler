@@ -41,8 +41,8 @@ void Parsing::program() {
     }
 
     MidCodeOP::addMidCode(new MidCode(Operator::CALL, "main", "", ""));
+    MidCodeOP::addMidCode(new MidCode(Operator::CALL_END, "main", "", ""));
     MidCodeOP::addMidCode(new MidCode(Operator::END, "", "", ""));
-
 
     while ((*nextToken)->getTokenType() == TokenType::CHARTK
            || (*nextToken)->getTokenType() == TokenType::INTTK
@@ -211,9 +211,6 @@ void Parsing::varDefInit() {
         table::addToTable(new Symbol(offset, name, type));
         offset += 4;
     } else if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
-        /*
-         * TODO
-         */
         getNextToken();
         unsigned line = unsignedInt();
         if (line <= 0) error();
@@ -225,13 +222,18 @@ void Parsing::varDefInit() {
             int i = 0;
             do {
                 getNextToken();
-                if (constant() != type) error(lineNum, 'o');
+                int value;
+                VarType tmp = constant(value);
+                MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN, name, std::to_string(value),
+                                                  std::to_string(i * 4)));
+                if (tmp != type) error(lineNum, 'o');
                 i++;
             } while ((*nextToken)->getTokenType() == TokenType::COMMA);
             if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
             if (i != line) error(lineNum, 'n');
             getNextToken();
-            table::addToTable(new Symbol(name, type, 1));
+            table::addToTable(new Symbol(offset, name, type, 0));
+            offset += 4 * (int) line;
         } else if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
             unsigned column = unsignedInt();
@@ -248,7 +250,11 @@ void Parsing::varDefInit() {
                 if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
                 do {
                     getNextToken();
-                    if (constant() != type) error(lineNum, 'o');
+                    int value;
+                    VarType tmp = constant(value);
+                    MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN, name, std::to_string(value),
+                                                      std::to_string((i * column + j) * 4)));
+                    if (tmp != type) error(lineNum, 'o');
                     j++;
                 } while ((*nextToken)->getTokenType() == TokenType::COMMA);
                 if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
@@ -259,7 +265,8 @@ void Parsing::varDefInit() {
             if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
             if (i != line) error(lineNum, 'n');
             getNextToken();
-            table::addToTable(new Symbol(name, type, 2));
+            table::addToTable(new Symbol(offset, name, type, (int) column));
+            offset += 4 * (int) line * (int) column;
         } else {
             error();
         }
@@ -313,19 +320,21 @@ void Parsing::varDefUnInit() {
         getNextToken();
         if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
-            unsigned tmp = unsignedInt();
-            if (tmp <= 0) error();
+            unsigned line = unsignedInt();
+            if (line <= 0) error();
             if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
             else getNextToken();
             if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
                 getNextToken();
-                tmp = unsignedInt();
-                if (tmp <= 0) error();
+                unsigned column = unsignedInt();
+                if (column <= 0) error();
                 if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
                 else getNextToken();
-                table::addToTable(new Symbol(name, type, 2));
+                table::addToTable(new Symbol(offset, name, type, (int) column));
+                offset += 4 * (int) line * (int) column;
             } else {
-                table::addToTable(new Symbol(name, type, 1));
+                table::addToTable(new Symbol(offset, name, type, 0));
+                offset += 4 * (int) line;
             }
         } else {
             table::addToTable(new Symbol(offset, name, type));
@@ -351,10 +360,12 @@ void Parsing::returnFuncDesc() {
     for (const std::pair<VarType, std::string> &a :vec) {
         paraList->push_back(a.first);
     }
+    MidCodeOP::addMidCode(new MidCode(Operator::FUNC, tmp.second, "", ""));
     table::addToTable(new Symbol(tmp.second, tmp.first, paraList));
     table::createTable(tmp.second, tmp.first);
     for (const std::pair<VarType, std::string> &a :vec) {
         table::addToTable(new Symbol(offset, a.second, a.first));
+        offset += 4;
     }
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
@@ -363,6 +374,7 @@ void Parsing::returnFuncDesc() {
     getNextToken();
     if (returnCount <= 0) error(lineNum, 'h');
     returnCount = 0;
+    MidCodeOP::addMidCode(new MidCode(Operator::FUNC_END, "", "", ""));
     table::deleteTable();
     fileout << "<有返回值函数定义>" << std::endl;
 }
@@ -379,7 +391,6 @@ std::pair<VarType, std::string> Parsing::defHead() {
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
     tmp.second = toLower((*nextToken)->getRawString());
-    //   returnFunc.insert((*nextToken)->getRawString());
     getNextToken();
     fileout << "<声明头部>" << std::endl;
     return tmp;
@@ -428,7 +439,7 @@ void Parsing::compState() {
         || (*nextToken)->getTokenType() == TokenType::INTTK) {
         varDesc();
     }
-    table::setOffset(table::getFuncName(),offset);
+    table::setOffset(table::getFuncName(), offset);
     stateList();
     fileout << "<复合语句>" << std::endl;
 }
@@ -636,26 +647,43 @@ VarType Parsing::term(int &tmpVa) {
 
 VarType Parsing::factor(int &tmpVa) {
     VarType tmp;
-    int trash; // TODO
+    // TODO
     if ((*nextToken)->getTokenType() == TokenType::IDENFR) {
         std::string name = (*nextToken)->getRawString();
         if ((nextToken + 1) < tokens.end() &&
             (*(nextToken + 1))->getTokenType() == TokenType::LPARENT) {
             tmp = returnFuncState();
+            tmpVa++;
+            MidCodeOP::addMidCode(new MidCode(Operator::LOD,
+                                              ".returnFunc", "",
+                                              "t" + std::to_string(tmpVa)));
         } else {
             tmp = table::getType((*nextToken)->getRawString());
             getNextToken();
             if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+                int line = 0;
                 getNextToken();
-                if (expression(trash) != VarType::INT) error(lineNum, 'i');
+                if (expression(line) != VarType::INT) error(lineNum, 'i');
                 if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
                 else getNextToken();
                 if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+                    int column = line;
                     getNextToken();
-                    if (expression(trash) != VarType::INT) error(lineNum, 'i');
+                    if (expression(column) != VarType::INT) error(lineNum, 'i');
                     if ((*nextToken)->getTokenType() != TokenType::RBRACK)error(lineNum, 'm');
                     else getNextToken();
+                    MidCodeOP::addMidCode(new MidCode(Operator::ARRAY, name,
+                                                      "t" + std::to_string(line),
+                                                      "t" + std::to_string(column)));
+                } else {
+                    MidCodeOP::addMidCode(new MidCode(Operator::ARRAY, name,
+                                                      "",
+                                                      "t" + std::to_string(line)));
                 }
+                tmpVa++;
+                MidCodeOP::addMidCode(new MidCode(Operator::LOD,
+                                                  ".array", "",
+                                                  "t" + std::to_string(tmpVa)));
             } else {
                 tmpVa++;
                 MidCodeOP::addMidCode(new MidCode(Operator::LOD,
@@ -716,18 +744,20 @@ VarType Parsing::returnFuncState() {
     name = (*nextToken)->getRawString();
     if (table::getType(name) == VarType::VOID) error();
     getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::CALL, name, "", ""));
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
     std::vector<VarType> vaList = vaArgList();
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::CALL_END, name, "", ""));
     fileout << "<有返回值函数调用语句>" << std::endl;
     return table::getFunc(name, vaList);
 }
 
 std::vector<VarType> Parsing::vaArgList() {
     std::vector<VarType> vaList;
-    int tmp;
+    int tmp = 0;
     if ((*nextToken)->getTokenType() != TokenType::RPARENT && (*nextToken)->getTokenType() != TokenType::SEMICN) {
         vaList.push_back(expression(tmp));
         while ((*nextToken)->getTokenType() == TokenType::COMMA) {
@@ -745,38 +775,55 @@ void Parsing::voidFuncState() {
     getNextToken();
     if ((*nextToken)->getTokenType() != TokenType::LPARENT) error();
     getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::CALL, name, "", ""));
     std::vector<VarType> vaList = vaArgList();
     if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
     else getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::CALL_END, name, "", ""));
     table::getFunc(name, vaList);
     fileout << "<无返回值函数调用语句>" << std::endl;
 }
 
 void Parsing::assiState() {
     std::string name;
-    int trash; //todo;
+    bool arrayFlag = false;
     if ((*nextToken)->getTokenType() != TokenType::IDENFR) error();
     name = ((*nextToken)->getRawString());
     getNextToken();
     table::setType(name);
     if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
+        arrayFlag = true;
         getNextToken();
-        expression(trash);
+        int line = 0;
+        expression(line);
         if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
         else getNextToken();
         if ((*nextToken)->getTokenType() == TokenType::LBRACK) {
             getNextToken();
-            expression(trash);
+            int column = line;
+            expression(column);
             if ((*nextToken)->getTokenType() != TokenType::RBRACK) error(lineNum, 'm');
             else getNextToken();
+            MidCodeOP::addMidCode(new MidCode(Operator::ARRAY, name,
+                                              "t" + std::to_string(line),
+                                              "t" + std::to_string(column)));
+        } else {
+            MidCodeOP::addMidCode(new MidCode(Operator::ARRAY,
+                                              name, "",
+                                              "t" + std::to_string(line)));
         }
     }
     if ((*nextToken)->getTokenType() != TokenType::ASSIGN) error();
     getNextToken();
     int tmpVa = 0;
     expression(tmpVa);
-    MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
-                                      name, "", "t" + std::to_string(tmpVa)));
+    if (arrayFlag) {
+        MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
+                                          ".array", "", "t" + std::to_string(tmpVa)));
+    } else {
+        MidCodeOP::addMidCode(new MidCode(Operator::ASSIGN,
+                                          name, "", "t" + std::to_string(tmpVa)));
+    }
     fileout << "<赋值语句>" << std::endl;
 }
 
@@ -895,7 +942,7 @@ void Parsing::returnState() {
     if ((*nextToken)->getTokenType() != TokenType::RETURNTK) error();
     getNextToken();
     returnCount++;
-    int tmp;
+    int tmp = 0;
     if ((*nextToken)->getTokenType() == TokenType::LPARENT) {
         if (table::getReturn() == VarType::VOID) {
             error(lineNum, 'g');
@@ -904,10 +951,12 @@ void Parsing::returnState() {
         } else {
             getNextToken();
             if (table::getReturn() != expression(tmp)) error(lineNum, 'h');
+            MidCodeOP::addMidCode(new MidCode(Operator::RET, "", "t" + std::to_string(tmp), ""));
         }
         if ((*nextToken)->getTokenType() != TokenType::RPARENT) error(lineNum, 'l');
         else getNextToken();
     } else {
+        MidCodeOP::addMidCode(new MidCode(Operator::RET, "", "", ""));
         if (table::getReturn() != VarType::VOID) error(lineNum, 'h');
     }
     fileout << "<返回语句>" << std::endl;
@@ -933,16 +982,20 @@ void Parsing::voidFuncDesc() {
     for (const std::pair<VarType, std::string> &a :vec) {
         paraList->push_back(a.first);
     }
+    MidCodeOP::addMidCode(new MidCode(Operator::FUNC, name, "", ""));
     table::addToTable(new Symbol(name, VarType::VOID, paraList));
     table::createTable(name, VarType::VOID);
     for (const std::pair<VarType, std::string> &a :vec) {
         table::addToTable(new Symbol(offset, a.second, a.first));
+        offset += 4;
     }
     if ((*nextToken)->getTokenType() != TokenType::LBRACE) error();
     getNextToken();
     compState();
     if ((*nextToken)->getTokenType() != TokenType::RBRACE) error();
     getNextToken();
+    MidCodeOP::addMidCode(new MidCode(Operator::RET, "", "", ""));
+    MidCodeOP::addMidCode(new MidCode(Operator::FUNC_END, "", "", ""));
     table::deleteTable();
     fileout << "<无返回值函数定义>" << std::endl;
 }

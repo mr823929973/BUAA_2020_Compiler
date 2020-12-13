@@ -7,11 +7,13 @@
 
 
 #include <ostream>
+#include <cassert>
 
 enum class Operator {
     ASSIGN,
     FUNC,
     CALL,
+    CALL_END,
     LOD,
     ADD,
     MINU,
@@ -21,7 +23,8 @@ enum class Operator {
     SCANF,
     PRINTF,
     FUNC_END,
-    END
+    END,
+    ARRAY
 };
 
 std::ostream &operator<<(std::ostream &out, Operator &tmp);

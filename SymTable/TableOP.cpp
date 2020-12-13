@@ -125,6 +125,20 @@ Symbol *table::getSymbol(const std::string &name) {
     return symbol;
 }
 
+int table::getDim(const std::string &name) {
+    Symbol *symbol = nullptr;
+    int tmp = 0;
+    int i = (int) SymTableStack.size() - 1;
+    while (i >= 0 && symbol == nullptr) {
+        symbol = SymTableStack[i]->getSym(name);
+        if (symbol != nullptr) {
+            tmp = symbol -> dimension;
+        }
+        i--;
+    }
+    return tmp;
+}
+
 
 
 

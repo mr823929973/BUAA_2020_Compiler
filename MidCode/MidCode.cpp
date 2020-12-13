@@ -22,53 +22,85 @@ std::ostream &operator<<(std::ostream &out, MidCode &tmp) {
 void MidCode::toAssCode() const {
     switch (op) {
         case Operator::ASSIGN: {
-            std::pair<std::string, int> tmp = table::getOffset(srcA);
-            if (srcB.empty()) {
+            if (srcA == ".array") {
                 AssCodeFile << "addi $sp, $sp, 4" << std::endl;
                 AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "sw $t0, 0($t1)" << std::endl;
             } else {
-                AssCodeFile << "li $t0, " << srcB << std::endl;
-            }
-            if (tmp.first == "$gp") {
-                AssCodeFile << "sw $t0, " << tmp.second << "($gp)" << std::endl;
-            } else {
-                AssCodeFile << "sw $t0, -" << tmp.second << "($fp)" << std::endl;
+                std::pair<std::string, int> tmp = table::getOffset(srcA);
+                int offset = tmp.second;
+                if (srcB.empty()) {
+                    AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                    AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                } else {
+                    AssCodeFile << "li $t0, " << srcB << std::endl;
+                    if (!srcC.empty()) {
+                        offset += std::stoi(srcC);
+                    }
+                }
+                if (tmp.first == "$gp") {
+                    AssCodeFile << "sw $t0, " << offset << "($gp)" << std::endl;
+                } else {
+                    AssCodeFile << "sw $t0, -" << offset << "($fp)" << std::endl;
+                }
             }
             break;
         }
         case Operator::FUNC:
             AssCodeFile << "FUNC_" << srcA << ":" << std::endl;
-            AssCodeFile << "move $fp, $sp" << std::endl;
-            AssCodeFile << "addi $sp, $sp, -" << table::getFuncOffset(srcA) << std::endl;
+            AssCodeFile << "move $fp, $s1" << std::endl;
+            AssCodeFile << "addi $sp, $fp, -" << table::getFuncOffset(srcA) << std::endl;
             table::createTable(srcA, VarType::VOID);
             break;
         case Operator::CALL:
-            //TODO
-
+            AssCodeFile << "sw $ra, 0($sp)" << std::endl;
+            AssCodeFile << "addi $sp, $sp ,-4" << std::endl;
+            AssCodeFile << "sw $fp, 0($sp)" << std::endl;
+            AssCodeFile << "addi $sp, $sp ,-4" << std::endl;
+            AssCodeFile << "move $s1, $sp" << std::endl;
+            break;
+        case Operator::CALL_END:
             AssCodeFile << "jal FUNC_" << srcA << std::endl;
-
+            AssCodeFile << "move $sp, $fp" << std::endl;
+            AssCodeFile << "addi $sp, $sp ,4" << std::endl;
+            AssCodeFile << "lw $fp, 0($sp)" << std::endl;
+            AssCodeFile << "addi $sp, $sp ,4" << std::endl;
+            AssCodeFile << "lw $ra, 0($sp)" << std::endl;
             break;
         case Operator::LOD: {
-            if (srcB.empty()) {
-                Symbol *tmp = table::getSymbol(srcA);
-                if (tmp != nullptr) {
-                    if (tmp->symType == SymType::CONST) {
-                        AssCodeFile << "li $t0, " << tmp->constValue << std::endl;
-                    } else {
-                        std::pair<std::string, int> temp = table::getOffset(srcA);
-                        if (temp.first == "$gp") {
-                            AssCodeFile << "lw $t0, " << temp.second << "($gp)" << std::endl;
+            if (srcA == ".array") {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "lw $t0, 0($t0)" << std::endl;
+                AssCodeFile << "sw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            } else if (srcA == ".returnFunc") {
+                AssCodeFile << "sw $s0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            } else {
+                if (srcB.empty()) {
+                    Symbol *tmp = table::getSymbol(srcA);
+                    if (tmp != nullptr) {
+                        if (tmp->symType == SymType::CONST) {
+                            AssCodeFile << "li $t0, " << tmp->constValue << std::endl;
                         } else {
-                            AssCodeFile << "lw $t0, -" << temp.second << "($fp)" << std::endl;
+                            std::pair<std::string, int> temp = table::getOffset(srcA);
+                            if (temp.first == "$gp") {
+                                AssCodeFile << "lw $t0, " << temp.second << "($gp)" << std::endl;
+                            } else {
+                                AssCodeFile << "lw $t0, -" << temp.second << "($fp)" << std::endl;
+                            }
                         }
                     }
-                }
 
-            } else {
-                AssCodeFile << "li $t0, " << srcB << std::endl;
+                } else {
+                    AssCodeFile << "li $t0, " << srcB << std::endl;
+                }
+                AssCodeFile << "sw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             }
-            AssCodeFile << "sw $t0, 0($sp)" << std::endl;
-            AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
         }
         case Operator::ADD: {
@@ -81,7 +113,6 @@ void MidCode::toAssCode() const {
             AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
         }
-
         case Operator::MINU: {
             AssCodeFile << "addi $sp, $sp, 4" << std::endl;
             AssCodeFile << "lw $t1, 0($sp)" << std::endl;
@@ -114,9 +145,14 @@ void MidCode::toAssCode() const {
             AssCodeFile << "addi $sp, $sp, -4" << std::endl;
             break;
         }
-        case Operator::RET:
+        case Operator::RET: {
+            if (!srcB.empty()) {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $s0, 0($sp)" << std::endl;
+            }
             AssCodeFile << "jr $ra" << std::endl;
             break;
+        }
         case Operator::SCANF: {
             VarType type = table::getType(srcA);
             std::pair<std::string, int> tmp = table::getOffset(srcA);
@@ -160,5 +196,32 @@ void MidCode::toAssCode() const {
             AssCodeFile << "li $v0, 10" << srcA << std::endl;
             AssCodeFile << "syscall" << srcA << std::endl;
             break;
+        case Operator::ARRAY: {
+            std::pair<std::string, int> tmp = table::getOffset(srcA);
+            int dim = table::getDim(srcA);
+            if (srcB.empty()) {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+            } else {
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t0, 0($sp)" << std::endl;
+                AssCodeFile << "addi $sp, $sp, 4" << std::endl;
+                AssCodeFile << "lw $t1, 0($sp)" << std::endl;
+                AssCodeFile << "li $t2, " << dim << std::endl;
+                AssCodeFile << "mult $t1, $t2 " << std::endl;
+                AssCodeFile << "mflo $t1" << std::endl;
+                AssCodeFile << "addu $t0, $t0, $t1" << std::endl;
+            }
+            AssCodeFile << "sll $t0, $t0 ,2" << std::endl;
+            AssCodeFile << "addi $t0, $t0, " << tmp.second << std::endl;
+            if (tmp.first == "$gp") {
+                AssCodeFile << "addu $t0, $gp, $t0" << std::endl;
+            } else {
+                AssCodeFile << "subu $t0, $fp, $t0" << std::endl;
+            }
+            AssCodeFile << "sw $t0, 0($sp)" << std::endl;
+            AssCodeFile << "addi $sp, $sp, -4" << std::endl;
+            break;
+        }
     }
 }
